@@ -25,7 +25,7 @@ import FoodOrderModal from './FoodOrderModal';
 import MenuModal from './MenuModal';
 
 
-const BookingScreen = () => {
+const BookingScreen = ({ navigation }) => {
 
   const [activeTab, setActiveTab] = useState("upcoming");
   const [bookings, setBookings] = useState([]);
@@ -113,6 +113,13 @@ const BookingScreen = () => {
     catch (err) { console.log(err) }
   }
 
+  const handlePayment = (id) => {
+    navigation.navigate('Payment', {
+      BookingId: id,
+      isPayAtHotelEnabled: false
+    });
+  }
+
   return (
     <View style={commonStyles.screenWrapper}>
       {/* <Header showBack={'My Bookings'} profileIcon={false} /> */}
@@ -145,7 +152,11 @@ const BookingScreen = () => {
                   tintColor="#1e90ff"
                 />
               }>
-              {
+              {filtered.length === 0 ?
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>  No bookings found</Text>
+                </View>
+                :
                 filtered?.map((item) => {
                   return (
                     <View style={styles.card} key={item?.id}>
@@ -239,7 +250,9 @@ const BookingScreen = () => {
                           </TouchableOpacity>
                         }
                         {(item?.PaymentStatus === 0 && item?.bookingStatus === 1) &&
-                          <TouchableOpacity style={[commonStyles.btn, commonStyles.btnSecondary, commonStyles.row, styles.button]}>
+                          <TouchableOpacity
+                            style={[commonStyles.btn, commonStyles.btnSecondary, commonStyles.row, styles.button]}
+                            onPress={() => handlePayment(item?.id)}>
                             <Text style={[commonStyles.btnText, styles.btnText]}>Pay Now</Text>
                           </TouchableOpacity>
                         }
@@ -247,13 +260,6 @@ const BookingScreen = () => {
                           <Text style={[commonStyles.btnOutlineDarkText, styles.btnText]}>Need Help?</Text>
                         </TouchableOpacity>
                       </View>
-
-                      {/* <View style={[commonStyles.rowCenter, commonStyles.mt_3]}>
-                        <Pressable style={[commonStyles.row]}>
-                          <Ionicons name="chevron-down" size={20} color="#7a7a7aff" />
-                          <Text style={{ color: '#7a7a7aff', marginLeft: 5 }}>More Details</Text>
-                        </Pressable>
-                      </View> */}
                     </View>
                   )
                 })

@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Rrooms</string>
+    <string name="app_name">RRooms</string>
+    <string name="facebook_app_id">881383194633290</string>
 </resources>

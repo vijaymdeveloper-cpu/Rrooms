@@ -9,19 +9,25 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { setCity, setSearch, setFilter } from '@store/slices/propertySlice';
 import services from '@api/services';
 import { baseImgUrl } from "@api/client";
 import ListingSkeleton from '@components/skeletons/ListingSkeleton';
-import CityCard from '../../screens/home/CityCard'
+import CityCard from '../../screens/home/CityCard';
 
 export default function SearchScreen() {
 
   const dispatch = useDispatch();
   const inputRef = useRef();
   const navigation = useNavigation();
+  const { searchVal, filterValues } = useSelector((state) => state.property);
+
+  const [coords, setCoords] = useState({
+    lat: null,
+    long: null,
+  });
 
   const [suggetion, setSuggetion] = useState([]);
   const [query, setQuery] = useState("");
@@ -56,6 +62,13 @@ export default function SearchScreen() {
       navigation.navigate('Hotels')
     }
     else if (item?.type === "LOCALITY") {
+      dispatch(setSearch(item?.name));
+      dispatch(
+        setFilter({
+          ...filterValues,
+          localityFilter: `${item?.pin_code}`,
+        })
+      );
       navigation.navigate('Hotels')
     }
     else if (item?.type === "PROPERTY") {
@@ -108,7 +121,7 @@ export default function SearchScreen() {
       </View>
 
       <View style={{ padding: 14 }}>
-        <CityCard size={'sm'} />
+        <CityCard size={'sm'} setCoords={setCoords} />
       </View>
 
       <View style={{ paddingHorizontal: 14 }}>

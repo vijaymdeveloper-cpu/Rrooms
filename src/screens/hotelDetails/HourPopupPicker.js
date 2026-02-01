@@ -90,9 +90,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: '#eee',
         borderRadius: 12,
-        paddingVertical: 7,
-        paddingHorizontal: 6,
-        marginVertical: 10
+        paddingVertical: 14,
+        paddingHorizontal: 12,
+        // marginTop: 10,
+        // marginBottom: 10
     },
     triggerText: {
         fontSize: 12,

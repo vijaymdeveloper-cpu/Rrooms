@@ -70,7 +70,7 @@ export const getTodaySlotPricing = (item, date) => {
         mergedSlots.find(it => it?.slot === "FullDay")?.price || 0;
 
     const fullDayTaxableAmount = Math.round(
-        fullDayPrice / (1 - 16 / 100)
+        fullDayPrice / (1 - 20 / 100)
     );
 
     return {

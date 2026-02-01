@@ -10,7 +10,7 @@ const RecommendedHotels = ({ data = [], commonStyles, navigation }) => {
     let checkToday = moment(new Date()).format('YYYY-MM-DD')
 
     return (
-        <View style={commonStyles.mt_2}>
+        <View style={[commonStyles.mt_2]}>
             <View style={[commonStyles.rowBetween, commonStyles.mb_3]}>
                 <Text style={commonStyles.text_4}>{'Recommended For You'}</Text>
             </View>
@@ -46,13 +46,24 @@ const RecommendedHotels = ({ data = [], commonStyles, navigation }) => {
                                         {item?.name}
                                     </Text>
 
-                                    <Text style={styles.itemLocation}>
-                                        {item?.locality}
-                                    </Text>
+
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Text style={styles.itemLocation}>
+                                            {item?.locality}
+                                        </Text>
+
+                                        {item?.distance != null && (
+                                            <Text style={styles.distanceText}>
+                                                {item.distance.toFixed(2)} km
+                                            </Text>
+                                        )}
+                                    </View>
+
+
                                     <View style={commonStyles.rowAligned}>
                                         <Text style={styles.price}>₹{priceInfo?.fullDayPrice}</Text>
                                         <Text style={styles.oldPrice}>₹ {priceInfo?.fullDayTaxableAmount}</Text>
-                                        <Text style={{color: '#2d9105ff'}}>16% Off</Text>
+                                        <Text style={{ color: '#2d9105ff' }}>20% Off</Text>
                                         {/* <Text>{fullDayPrice}</Text> */}
                                     </View>
 
@@ -71,7 +82,7 @@ export default RecommendedHotels;
 
 const styles = StyleSheet.create({
     card: {
-        width: 180,
+        width: 200,
         backgroundColor: "#fff",
         borderRadius: 14,
         overflow: 'hidden',
@@ -86,6 +97,22 @@ const styles = StyleSheet.create({
         color: '#666',
         marginVertical: 4
     },
-    price: { fontWeight: "700", fontSize: 16 },
-    oldPrice: { textDecorationLine: "line-through", color: '#666', marginHorizontal: 6 },
+    price: {
+        fontWeight: "700",
+        fontSize: 16
+    },
+    oldPrice: {
+        textDecorationLine: "line-through",
+        color: '#666',
+        marginHorizontal: 6
+    },
+    distanceText: {
+        color: '#0f0f0f',
+        fontSize: 12,
+        fontWeight: 'bold',
+        backgroundColor: '#eef4ff',
+        borderRadius: 8,
+        paddingHorizontal: 6,
+        marginLeft: 5
+    }
 })

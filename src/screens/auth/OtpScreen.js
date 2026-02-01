@@ -5,7 +5,9 @@ import {
     StyleSheet,
     TextInput,
     TouchableOpacity,
-    ActivityIndicator
+    ActivityIndicator,
+    BackHandler,
+    Platform
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +17,12 @@ import services from "@api/services";
 import { saveToken, saveUserData, fetchUserData, fetchWalletData, fetchWalletTransactions, fetchCoupons } from '@store/slices/authSlice'
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { commonStyles } from '@assets/styles/commonStyles'
+import {
+    getHash,
+    requestHint,
+    useOtpVerify,
+} from 'react-native-otp-verify';
+
 
 export default function OtpScreen({ route, navigation }) {
 
@@ -27,6 +35,8 @@ export default function OtpScreen({ route, navigation }) {
     const [timeLeft, setTimeLeft] = useState(120);
     const [canResend, setCanResend] = useState(false);
     const [verifying, setVerifying] = useState(false);
+    const { message, timeoutError, stopListener, startListener } = useOtpVerify({ numberOfDigits: 4 });
+
 
 
     const handleOtpChange = (code) => {
@@ -57,6 +67,7 @@ export default function OtpScreen({ route, navigation }) {
                 dispatch(fetchWalletData(userId))
                 dispatch(fetchWalletTransactions(userId))
                 dispatch(fetchCoupons(userId))
+                stopListener()
             }
         }
         catch (err) {
@@ -74,6 +85,15 @@ export default function OtpScreen({ route, navigation }) {
             handleVerify();
         }
     }, [otp]);
+
+    useEffect(() => {
+        if (message) {
+            const otp = /(\d{4})/g.exec(message)[1];
+            setOtp(otp);
+        }
+        startListener()
+    }, [message])
+
 
 
     useEffect(() => {
@@ -112,7 +132,7 @@ export default function OtpScreen({ route, navigation }) {
     return (
         <LinearGradient
             colors={["#ffdcc5ff", "#fff", "#dfdfdfff"]}
-             style={styles.container}>
+            style={styles.container}>
             <SafeAreaView>
                 <View>
                     <TouchableOpacity

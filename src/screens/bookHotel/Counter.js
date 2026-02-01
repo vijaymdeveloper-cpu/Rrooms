@@ -13,8 +13,11 @@ const Counter = ({ label, value, setValue }) => {
                 >
                     <Text style={styles.counterText}>−</Text>
                 </TouchableOpacity>
-
-                <Text style={styles.counterValue}>{value}</Text>
+                <TouchableOpacity
+                    onPress={() => setValue(value + 1)}
+                >
+                    <Text >{value}</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity
                     style={styles.counterBtn}
@@ -30,13 +33,12 @@ const Counter = ({ label, value, setValue }) => {
 export default Counter;
 
 const styles = StyleSheet.create({
-    counterBox: { width: '30%',},
+    counterBox: { width: '30%', },
     counterLabel: {
         fontWeight: '500',
-        marginBottom: 5
+        marginBottom: 5,
     },
     counter: {
-        flex: 1,
         height: 40,
         flexDirection: 'row',
         alignItems: 'center',
@@ -55,6 +57,6 @@ const styles = StyleSheet.create({
         height: 40,
         fontSize: 18,
         justifyContent: 'center',
-        paddingHorizontal: 18
+        paddingHorizontal: 18,
     },
 })

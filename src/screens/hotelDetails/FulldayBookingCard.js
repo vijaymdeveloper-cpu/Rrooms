@@ -13,6 +13,8 @@ import services from "@api/services";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { getNextDay, reverseApplyTax } from "@utils";
 import CalendarModal from '@utils/Calendar';
+import { calculateFinalPrice } from '@utils';
+
 
 const FulldayBookingCard = ({
     room = [],
@@ -148,14 +150,16 @@ const FulldayBookingCard = ({
                     </Text>
 
                     <View style={styles.priceRow}>
-                        <Text style={styles.price}>₹{finalPrice}</Text>
+                        <Text style={styles.price}>₹{finalPrice}
+                            <Text style={{fontSize:10}} >{`+₹${calculateFinalPrice(finalPrice).tax} taxes`}</Text>
+                        </Text>
 
                         {finalPrice && (
-                            <Text style={styles.oldPrice}>₹ {Math.round(reverseApplyTax(finalPrice))}</Text>
+                            <Text style={styles.oldPrice}>₹{`${Math.round(reverseApplyTax(finalPrice))}`}</Text>
                         )}
                         <View style={styles.saveBadge}>
                             <Text style={styles.saveText}>
-                                16% OFF
+                                20% OFF
                             </Text>
                         </View>
                     </View>
@@ -220,13 +224,12 @@ export default FulldayBookingCard;
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: "#fff",
-        borderRadius: 14,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        elevation: 4,
         flexDirection: 'row',
-        // elevation: 2,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-        padding: 10,
+        padding: 14,
+        marginTop: 15,
     },
     imageBox: {
         width: 80,
@@ -250,6 +253,8 @@ const styles = StyleSheet.create({
         fontSize: 11,
         color: "#777",
         marginTop: 4,
+        flexWrap:'wrap',
+        maxWidth:'98%'
     },
     priceRow: {
         flexDirection: "row",
@@ -257,7 +262,7 @@ const styles = StyleSheet.create({
         marginTop: 6,
     },
     price: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: "700",
         color: "#000",
     },
@@ -301,10 +306,9 @@ const styles = StyleSheet.create({
     dateRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        backgroundColor: '#eee',
+        backgroundColor: '#ffffff',
         borderRadius: 12,
         padding: 14,
-        marginBottom: 12
     },
     dateText: {
         fontSize: 16,

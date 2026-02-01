@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, Controller } from "react-hook-form";
@@ -71,6 +71,8 @@ const BookHotelScreen = ({ route, navigation }) => {
   });
   const [bookingDetail, setBookingDetail] = useState("");
 
+  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     if (hotelData?.checkinBookingDate && hotelData?.checkoutBookingDate) {
@@ -100,8 +102,8 @@ const BookHotelScreen = ({ route, navigation }) => {
     const instantDiscountTotal = instantDiscount * room * days;
     const amountBeforeTaxTotal = amountBeforeTax * room * days;
 
-    const taxAmount = Math.round((amountBeforeTaxTotal * (tax?.amount || 0)) / 100);
-    const subTotal = amountBeforeTaxTotal + taxAmount
+    const taxAmount = Math.round(((originalPriceTotal - instantDiscountTotal) * (tax?.amount || 0)) / 100);
+    const subTotal = originalPriceTotal - instantDiscountTotal + taxAmount;
     const couponAmount = subTotal * (couponDiscount / 100)
     const amountAfterAllDiscount = subTotal - walletDiscount - couponAmount
     const breakfastAmountWithTax = breakfastAmount * 1.05;
@@ -113,7 +115,7 @@ const BookHotelScreen = ({ route, navigation }) => {
       ...prev,
       basePrice: originalPriceTotal,
       instantDiscount: instantDiscountTotal,
-      amountBeforeTax: amountBeforeTaxTotal,
+      amountBeforeTax: originalPriceTotal - instantDiscountTotal,
       breakfastAmount: breakfastAmount,
       subTotal: subTotal,
       taxesAndFees: taxAmount,
@@ -143,24 +145,44 @@ const BookHotelScreen = ({ route, navigation }) => {
     fetchTaxs()
   }, [])
 
-  const handleAdultChange = (newAdult) => {
-    if (newAdult < 0) return;
-    setAdult(newAdult);
-    const requiredRooms = Math.ceil(newAdult / 2);
-    if (requiredRooms > room) {
-      setRoom(requiredRooms);
-    } else if (newAdult <= (room - 1) * 2) {
-      setRoom(requiredRooms);
+  const MAX_ROOMS = availableRooms > 5 ? 5 : availableRooms;
+
+
+  const updateOccupancy = ({
+    newAdult = adult,
+    newChild = child,
+    newRoom = room,
+  }) => {
+    // 1️⃣ Room manual (1–5)
+    let finalRoom = Math.min(Math.max(1, newRoom), MAX_ROOMS);
+    // 2️⃣ Adult min 1
+    let finalAdult = Math.max(1, newAdult);
+    // 3️⃣ Adult overflow → room auto increase
+    const requiredRooms = Math.ceil(finalAdult / 2);
+    if (requiredRooms > finalRoom) {
+      finalRoom = Math.min(requiredRooms, MAX_ROOMS);
     }
+    // 4️⃣ Adult cap by room capacity
+    finalAdult = Math.min(finalAdult, finalRoom * 2);
+    // 5️⃣ Child max 1 per room
+    let finalChild = Math.min(Math.max(0, newChild), finalRoom);
+    // 6️⃣ Update state
+    setRoom(finalRoom);
+    setAdult(finalAdult);
+    setChild(finalChild);
   };
+
 
   const onApplyPress = async () => {
     if (couponCode != "") {
+      setLoading(true);
       const res = await services.applyCouponService(hotelData?.propertyId, couponCode)
       if (res?.data?.status) {
         dispatch(saveCouponDiscount(res?.data?.data?.amount))
         showToast('message', 'Coupon applied successfully!');
       }
+      setLoading(false);
+
     }
     else {
       Alert.alert('Please Enter Coupon Code')
@@ -168,6 +190,7 @@ const BookHotelScreen = ({ route, navigation }) => {
   }
 
   const checkRoomAvailabilityOnCheckIn = async (value) => {
+    setLoading(true);
     setSelectedHour(value)
     let payload = {
       propertyId: hotelData?.propertyId,
@@ -187,6 +210,8 @@ const BookHotelScreen = ({ route, navigation }) => {
         showToast('message', `${res?.data?.data?.availableRooms} rooms available`);
       }
     }
+    setLoading(false);
+
     return res?.data?.data
   }
 
@@ -209,19 +234,22 @@ const BookHotelScreen = ({ route, navigation }) => {
       if (res?.data?.data[0]?.availableRooms == 0) {
         showToast('error', `No room available`);
       }
-      else {
-        showToast('message', `${res?.data?.data[0]?.availableRooms} rooms available`);
-      }
+      setLoading(false);
+      // else {
+      //   showToast('message', `${res?.data?.data[0]?.availableRooms} rooms available`);
+      // }
     }
   }
 
   useEffect(() => {
     if (Object.keys(hotelData)?.length && checkinDate && checkoutDate) {
+      setLoading(true);
       checkFullDayRoomAvaility()
     }
   }, [checkinDate, checkoutDate, hotelData])
 
   const createBooking = async () => {
+    setLoading(true);
     const payload = {
       propertyId: hotelData?.propertyId,
       propertyRoomsCategoryId: hotelData.categoryId,
@@ -233,8 +261,8 @@ const BookHotelScreen = ({ route, navigation }) => {
       paymentMode: 0,
       PaymentStatus: 0,
       bookingStatus: 0,
-      bookingAmout: priceSummary?.totalPayable,
-      dueAmount: priceSummary?.totalPayable,
+      bookingAmout: Math.round(priceSummary?.totalPayable),
+      dueAmount: Math.round(priceSummary?.totalPayable),
       guestDetails: [],
       otherPersonName: name,
       otherPersonNumber: mobile,
@@ -281,6 +309,8 @@ const BookHotelScreen = ({ route, navigation }) => {
           BookingId: res?.data?.data?.id
         });
       }
+      setLoading(false);
+
     }
     catch (err) { console.log(err) }
   }
@@ -291,6 +321,19 @@ const BookHotelScreen = ({ route, navigation }) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
     >
+      {loading && (
+        <View style={{
+          height: '100%',
+          width: '100%',
+          position: 'absolute',
+          zIndex: 10,
+          backgroundColor: '#00000033',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <ActivityIndicator size={'large'} color={'#000'} />
+        </View>
+      )}
       <View style={{ flex: 1 }}>
         <View style={{ paddingHorizontal: 16 }}>
           <Header showBack={true} />
@@ -354,9 +397,9 @@ const BookHotelScreen = ({ route, navigation }) => {
               {/* <Text style={styles.subTitle}>Room Details</Text> */}
 
               <View style={commonStyles.rowBetweenAligned}>
-                <Counter label="Room" value={room} setValue={setRoom} />
-                <Counter label="Adults" value={adult} setValue={handleAdultChange} />
-                <Counter label="Child" value={child} setValue={setChild} />
+                <Counter label="Room" value={room} setValue={(val) => updateOccupancy({ newRoom: val })} />
+                <Counter label="Adults" value={adult} setValue={(val) => updateOccupancy({ newAdult: val })} />
+                <Counter label="Child" value={child} setValue={(val) => updateOccupancy({ newChild: val })} />
               </View>
 
               {isHourlyBooking && (
@@ -400,7 +443,7 @@ const BookHotelScreen = ({ route, navigation }) => {
             <View style={styles.priceCard}>
               <Text style={styles.subTitle}>Price Details</Text>
 
-              <PriceRow label="Room Tariff / Guest" value={formatINR(priceSummary?.basePrice)} />
+              <PriceRow label={isHourlyBooking ? "Room Tariff / Room" : "Room Tariff / Room / Night"} value={formatINR(priceSummary?.basePrice)} />
               <PriceRow label="Instant Discount" value={formatINR(priceSummary?.instantDiscount)} />
               <PriceRow label="Base Price" value={formatINR(priceSummary?.amountBeforeTax)} />
               <PriceRow label="Taxes & Fee" value={formatINR(priceSummary?.taxesAndFees)} />
@@ -432,6 +475,7 @@ const BookHotelScreen = ({ route, navigation }) => {
                   <View style={[styles.couponView, commonStyles.row, commonStyles.mb_2]}>
                     <TextInput
                       placeholder="Enter coupon code"
+                      placeholderTextColor='#777'
                       value={couponCode}
                       onChangeText={setCouponCode}
                       style={styles.input}
@@ -448,7 +492,7 @@ const BookHotelScreen = ({ route, navigation }) => {
                       <Text style={commonStyles.btnText}>Apply</Text>
                     </TouchableOpacity>
                   </View>
-                  <TouchableOpacity style={commonStyles.rowEnd} onPress={() => navigation.navigate('Coupons')}>
+                  <TouchableOpacity style={commonStyles.rowEnd} onPress={() => navigation.navigate('Coupons', { propertyId: hotelData?.propertyId })}>
                     <Text style={commonStyles.btnLink}>Explore Offers</Text>
                   </TouchableOpacity>
                 </View>
@@ -477,6 +521,7 @@ const BookHotelScreen = ({ route, navigation }) => {
                             value={value}
                             onChangeText={onChange}
                             placeholder="Enter Other Person Name"
+                            placeholderTextColor='#777'
                           />
                         )}
                       />
@@ -500,7 +545,8 @@ const BookHotelScreen = ({ route, navigation }) => {
                             style={styles.input2}
                             value={value}
                             onChangeText={onChange}
-                            placeholder="Enter Other Mobile Number"
+                            placeholder="Enter Other Person Mobile Number"
+                            placeholderTextColor='#777'
                             keyboardType="number-pad"
                           />
                         )}
@@ -553,8 +599,8 @@ const BookHotelScreen = ({ route, navigation }) => {
         <TouchableOpacity
           style={[commonStyles.btn, commonStyles.btnSecondary, availableRooms === 0 && commonStyles.btnDisabled]}
           onPress={createBooking}
-          disabled={availableRooms == 0}>
-          <Text style={commonStyles.btnText}>Continue for Payment</Text>
+          disabled={availableRooms === 0}>
+          <Text style={commonStyles.btnText}>Confirm your Booking</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -614,7 +660,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
   },
-  label: { fontSize: 12, color: '#666' },
+  label: { fontSize: 12, color: '#313131' },
   dateText: { fontSize: 14, fontWeight: '600' },
 
   summaryRow: {
@@ -623,7 +669,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     marginTop: 12,
   },
-  summaryText: { fontSize: 13 },
+  summaryText: { fontSize: 14 },
 
 
   timeBox: { marginTop: 16 },

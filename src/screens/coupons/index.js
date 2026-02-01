@@ -5,8 +5,9 @@ import { commonStyles } from '@assets/styles/commonStyles';
 import Header from '@components/Header';
 import CouponCard from './CouponCard';
 
-const CouponScreen = ({ onApply }) => {
+const CouponScreen = ({ route, navigation }) => {
 
+    const propertyId = route?.params?.propertyId
     const { coupons = [] } = useSelector((state) => state.auth);
 
     return (
@@ -17,7 +18,12 @@ const CouponScreen = ({ onApply }) => {
             <ScrollView>
                 {
                     coupons.map((item) => (
-                        <CouponCard key={item?.code} item={item} />
+                        <CouponCard
+                            key={item?.code}
+                            item={item}
+                            propertyId={propertyId}
+                            navigation={navigation}
+                        />
                     ))}
             </ScrollView>
         </View>

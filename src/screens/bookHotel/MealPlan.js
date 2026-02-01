@@ -18,13 +18,15 @@ const MealPlan = ({ mealCharges, mealPlan, setMealPlan }) => {
         }
     };
 
+    console.log('mealPlan', mealPlan)
+
 
     return (
 
         <View style={styles.card}>
             <TouchableOpacity style={styles.heading} onPress={handleToggleMealPlan}>
                 <Text style={styles.subTitle}>
-                    {mealPlan ? 'Meal Plan added' : 'Add Meal Plan'}{" "}
+                    {mealPlan == 'ep' ? 'Select Meal Plan' : 'Meal Plan Added'}{" "}
                     {
                         mealPlan != 'ep' ?
                         <Text style={styles.smallText}>

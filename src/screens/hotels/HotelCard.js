@@ -5,12 +5,13 @@ import moment from "moment";
 import { baseImgUrl } from "@api/client";
 import { PROPERTY_CATEGORY_COLORS } from '@constants';
 import { getTodaySlotPricing } from '@utils/slotPricing'
+import { calculateFinalPrice } from '@utils';
 
 const { width } = Dimensions.get("window");
 
 export default function HotelCard({ navigation, item, getAverageRating, mergeAllSlotsForDate, safeParse, commonStyles }) {
 
-    const PayAtHotel = item?.travellerChoice ? item?.travellerChoice.split(',').find((anm) => anm == 16) : []
+    let PayAtHotel = item?.travellerChoice ? item?.travellerChoice.split(',').find((anm) => anm == 16) : []
     let checkToday = moment(new Date()).format('YYYY-MM-DD')
     let priceInfo = getTodaySlotPricing(item, checkToday);
 
@@ -36,7 +37,9 @@ export default function HotelCard({ navigation, item, getAverageRating, mergeAll
                 renderItem={({ item: img }) => {
                     const imageUrl = baseImgUrl + img?.image;
                     return (
-                        <TouchableOpacity onPress={() => handleHotelPress("")}>
+                        <TouchableOpacity
+                            activeOpacity={0.7}
+                            onPress={() => handleHotelPress("")}>
                             <Image
                                 source={{ uri: imageUrl }}
                                 style={styles.image}
@@ -76,15 +79,23 @@ export default function HotelCard({ navigation, item, getAverageRating, mergeAll
                 </View>
 
                 <Text style={styles.title}>{item?.name}</Text>
-                <Text style={styles.location}>
-                    {item?.locality}, {item?.city?.name}
-                </Text>
+                <View style={commonStyles.rowAligned}>
+                    <Text style={[styles.location, { flexDirection: 'row' }]}>
+                        {item?.locality}, {item?.city?.name}
+                    </Text>
+                    {
+                        item?.distance &&
+                        <Text style={styles.distanceText}>
+                            {item.distance.toFixed(2)} km
+                        </Text>
+                    }
+                </View>
+
 
                 <View style={styles.priceRow}>
-                    <Text style={styles.price}>₹{priceInfo?.fullDayPrice}/night</Text>
+                    <Text style={styles.price}>{`₹${priceInfo?.fullDayPrice} + ₹${calculateFinalPrice(priceInfo?.fullDayPrice).tax} taxes/Night`}</Text>
                     <Text style={styles.oldPrice}>₹ {priceInfo?.fullDayTaxableAmount}</Text>
-                    <Text style={styles.discount}>16% Off</Text>
-                    {/* <Text>{fullDayPrice}</Text> */}
+                    <Text style={styles.discount}>20% Off</Text>
                 </View>
 
                 {
@@ -126,7 +137,7 @@ export default function HotelCard({ navigation, item, getAverageRating, mergeAll
                         onPress={() => { handleHotelPress('Full_Day_Plan') }}
                     >
                         <Text style={commonStyles.btnText}>
-                            {item?.allowHourly ? `Book Full Day @ ₹${priceInfo?.fullDayPrice}` : 'Book Now'}
+                            {item?.allowHourly ? `Book Full Day @ ₹${calculateFinalPrice(priceInfo?.fullDayPrice).total}` : 'Book Now'}
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -164,29 +175,29 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 10,
         right: 10,
-        backgroundColor: "#d32f2f",
+        backgroundColor: "#fff0c5",
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 6,
         zIndex: 2
     },
     walletText: {
-        color: "#fff",
+        color: "#000",
         fontSize: 12,
         fontWeight: "600"
     },
     content: { paddingVertical: 12, paddingHorizontal: 10 },
     ratingRow: { flexDirection: "row", alignItems: "center" },
-    rating: { marginLeft: 4, fontSize: 12 },
+    rating: { fontSize: 14, fontWeight: '700', marginLeft: 4, },
     title: { fontSize: 18, fontWeight: "600", marginVertical: 4 },
     location: { color: "#1e90ff", fontSize: 12 },
     greenText: { color: "green", fontSize: 12 },
     priceRow: { flexDirection: "row", marginTop: 6 },
-    price: { fontWeight: "700", fontSize: 16 },
+    price: { fontWeight: "700", fontSize: 14 },
     oldPrice: { textDecorationLine: "line-through", marginLeft: 6 },
-    discount: { color: "green", marginLeft: 6 },
+    discount: { color: "green", fontWeight: '700', marginLeft: 6 },
     buttonRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 12 },
-    timeBtn: { width: '32%', backgroundColor: '#3C4043', borderRadius: 6, padding: 10 },
+    timeBtn: { width: '32%', backgroundColor: '#000', borderRadius: 6, padding: 10 },
     timeText: { textAlign: "center", color: "#fff", fontSize: 14, fontWeight: 'bold' },
     featureRow: {
         width: '100%',
@@ -209,11 +220,20 @@ const styles = StyleSheet.create({
         fontWeight: "600"
     },
     btnDisabled: {
-        backgroundColor: "#d3d3d3ff",
-        borderColor: "#ddd",
+        backgroundColor: "#999",
+        borderColor: "#999",
         opacity: 0.6,
     },
     textDisabled: {
         color: "#444",
     },
+    distanceText: {
+        color: '#0f0f0f',
+        fontSize: 12,
+        fontWeight: 'bold',
+        backgroundColor: '#eef4ff',
+        borderRadius: 8,
+        paddingHorizontal: 6,
+        marginLeft: 5
+    }
 });

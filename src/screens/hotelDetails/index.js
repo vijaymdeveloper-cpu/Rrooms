@@ -23,6 +23,7 @@ import HotelDetailSkeleton from '@components/skeletons/HotelDetailSkeleton'
 import TabButton from '@components/TabButton'
 import SlotBookingCard from './SlotBookingCard'
 import FulldayBookingCard from './FulldayBookingCard'
+import HotelGalleryModal from './HotelGalleryModal'
 import NearByHotels from './NearByHotels';
 
 const { width } = Dimensions.get("window");
@@ -35,6 +36,8 @@ export default function HotelDetailsScreen({ route, navigation }) {
     const {
         fetchPropertyDetail,
         hotelDetails,
+        showGallery,
+        setShowGallery,
         checkToday,
         setCheckToday,
         loading,
@@ -86,6 +89,7 @@ export default function HotelDetailsScreen({ route, navigation }) {
         }
     };
 
+    console.log('PropertyImage', hotelDetails?.PropertyImage)
 
     return (
         <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
@@ -133,15 +137,28 @@ export default function HotelDetailsScreen({ route, navigation }) {
                         </View>
                         <View style={[commonStyles.rowCenter, { marginTop: -30 }]}>
                             {
-                                hotelDetails?.PropertyImage?.slice(0, 4)?.map((item) => {
+                                hotelDetails?.PropertyImage?.slice(0, 4)?.map((item, i) => {
                                     return (
                                         <View style={styles.thumbBox} key={item?.id}>
                                             <Image source={{ uri: baseImgUrl + item.image }} style={styles.thumbImg} />
+                                            {
+                                                i == 3 &&
+                                                <TouchableOpacity
+                                                    style={[styles.thumbText, commonStyles.allCenter]}
+                                                    onPress={() => setShowGallery(true)}>
+                                                    <Text style={commonStyles.textWhite}>View All</Text>
+                                                </TouchableOpacity>
+                                            }
                                         </View>
                                     )
                                 })
                             }
                         </View>
+                        <HotelGalleryModal
+                            visible={showGallery}
+                            images={hotelDetails?.PropertyImage}
+                            onClose={() => setShowGallery(false)}
+                        />
 
                         <View style={styles.content}>
 
@@ -196,46 +213,50 @@ export default function HotelDetailsScreen({ route, navigation }) {
                                 </View>
                             </View>
 
-                            {
-                                hotelDetails?.allowHourly ?
-                                    <View style={[styles.tabWrapper]}>
-                                        {PLAN_TABS.map((tab) => (
-                                            <TabButton
-                                                key={tab.value}
-                                                label={tab.label}
-                                                value={tab.value}
-                                                activeValue={plan}
-                                                onPress={setPlan}
-                                                commonStyles={commonStyles}
-                                            />
-                                        ))}
-                                    </View> :
-                                    <Text style={[commonStyles.text_4, commonStyles.mb_2]}>Full Day Room Plan</Text>
-                            }
+                            <View style={{ backgroundColor: '#ebebeb', borderRadius: 20, padding: 15 }}>
 
-                            <View>
                                 {
-                                    plan == 'Full_Day_Plan' ? (
-                                        <FulldayBookingCard
-                                            room={hotelDetails?.Rooms}
-                                            roomCategories={roomCategories}
-                                            checkToday={checkToday}
-                                            filterAmenities={filterAmenities}
-                                            baseImgUrl={baseImgUrl}
-                                            navigation={navigation}
-                                            hotelDetails={hotelDetails}
-                                        />
-                                    ) : (
-                                        <SlotBookingCard
-                                            checkToday={checkToday}
-                                            setCheckToday={setCheckToday}
-                                            hotelDetails={hotelDetails}
-                                            applyTax={applyTax}
-                                            roomCategories={roomCategories}
-                                            navigation={navigation}
-                                        />
-                                    )
+                                    hotelDetails?.allowHourly ?
+                                        <View style={[styles.tabWrapper]}>
+                                            {PLAN_TABS.map((tab) => (
+                                                <TabButton
+                                                    key={tab.value}
+                                                    label={tab.label}
+                                                    value={tab.value}
+                                                    activeValue={plan}
+                                                    onPress={setPlan}
+                                                    commonStyles={commonStyles}
+                                                />
+                                            ))}
+                                        </View> :
+                                        <Text style={[commonStyles.text_4, commonStyles.mb_2]}>Full Day Room Plan</Text>
                                 }
+
+                                <View>
+                                    {
+                                        plan == 'Full_Day_Plan' ? (
+                                            <FulldayBookingCard
+                                                room={hotelDetails?.Rooms}
+                                                roomCategories={roomCategories}
+                                                checkToday={checkToday}
+                                                filterAmenities={filterAmenities}
+                                                baseImgUrl={baseImgUrl}
+                                                navigation={navigation}
+                                                hotelDetails={hotelDetails}
+                                            />
+                                        ) : (
+                                            <SlotBookingCard
+                                                checkToday={checkToday}
+                                                setCheckToday={setCheckToday}
+                                                hotelDetails={hotelDetails}
+                                                applyTax={applyTax}
+                                                roomCategories={roomCategories}
+                                                navigation={navigation}
+                                            />
+                                        )
+                                    }
+                                </View>
+
                             </View>
 
                             <View style={styles.policyWrapper}>
@@ -343,6 +364,14 @@ const styles = StyleSheet.create({
         height: 46,
         borderRadius: 6,
     },
+    thumbText: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        width: '100%',
+        height: '100%',
+    },
     featureBadge: {
         flexDirection: "row",
         alignItems: "center",
@@ -355,7 +384,7 @@ const styles = StyleSheet.create({
     featureText: {
         color: "#fff",
         fontSize: 11,
-        fontWeight: "600"
+        fontWeight: "700"
     },
     content: {
         padding: 20
@@ -393,14 +422,17 @@ const styles = StyleSheet.create({
     },
     amenityText: {
         fontSize: 10,
+        fontWeight: '700',
         color: "#374151",
         textAlign: "center",
         lineHeight: 14,
         marginTop: 6,
     },
     policyWrapper: {
-        backgroundColor: '#eee',
+        backgroundColor: '#fffcf7',
         borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#fb961b',
         padding: 15,
         marginTop: 24
     },
@@ -411,17 +443,18 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     bulletDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: "#555",
-        marginTop: 7,
+        width: 10,
+        height: 10,
+        backgroundColor: "#fb961b",
+        borderWidth: 1,
+        borderColor: '#000',
+        marginTop: 5,
         marginRight: 6,
     },
     bulletText: {
         flex: 1,
         fontSize: 14,
-        color: "#555",
+        color: "#363636",
         lineHeight: 20,
     },
 });

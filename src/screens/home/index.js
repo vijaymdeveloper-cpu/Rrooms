@@ -17,17 +17,23 @@ const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const [hotels, setHotels] = useState([])
-
-  const { access_token, userDetail } = useSelector((state)=> state.auth)
-
-  console.log('access_token', access_token)
-  console.log('userDetails', userDetail)
+  const [coords, setCoords] = useState({
+    lat: null,
+    long: null,
+  });
 
   const fetchHotels = async () => {
     try {
-      const res = await services.getPropertiesForHomeService()
+      const { lat, long } = coords
+      const param = (lat || long) ? `&lat=${lat}&long=${long}` : `&query=Lucknow`
+      const res = await services.getPropertiesForHomeService(param)
       if (res?.status === 200) {
-        setHotels(res?.data?.data)
+        let hotelList = res?.data?.data
+        setHotels(hotelList)
+        if (hotelList?.length == 0) {
+          const newRes = await services.getPropertiesForHomeService('&query=Lucknow')
+          setHotels(newRes)
+        }
       }
     }
     catch (err) { console.log(err) }
@@ -35,7 +41,7 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchHotels()
-  }, []);
+  }, [coords]);
 
   const handleFilterByTravelChoise = (item) => {
     dispatch(setCity(''))
@@ -60,12 +66,13 @@ const HomeScreen = ({ navigation }) => {
             <Text style={[commonStyles.text_4, commonStyles.mb_3]}>
               Explore By Cities
             </Text>
-            <CityCard />
+            <CityCard setCoords={setCoords} />
           </View>
           <LinearGradient
-              colors={["#422b15ff", "#f7af51ff"]}
-              style={styles.slotCard}
-            >
+            colors={["rgb(54, 34, 15)", "rgb(202, 136, 49)"]}
+            style={styles.slotCard}
+          >
+            <View style={{ padding: 18 }}>
               <View style={[commonStyles.row, commonStyles.alignItems, commonStyles.mb_2]}>
                 <Icon name="time-outline" size={20} color="#fff" />
                 <Text style={styles.slotTitle}>Stay Smart Pay by the Hour</Text>
@@ -76,11 +83,11 @@ const HomeScreen = ({ navigation }) => {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => handleFilterByTravelChoise({ id: 8 })}
-              // onPress={()=> navigation.navigate('Payment')}
               >
                 <Text style={styles.buttonText}>Explore Now</Text>
               </TouchableOpacity>
-            </LinearGradient>
+            </View>
+          </LinearGradient>
           <RecommendedHotels
             commonStyles={commonStyles}
             styles={styles}
@@ -146,7 +153,6 @@ const styles = StyleSheet.create({
   },
   slotCard: {
     borderRadius: 20,
-    padding: 18,
     marginVertical: 10
   },
   slotTitle: {
@@ -157,7 +163,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   slotSubtitle: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '600',
     color: "#fff",
     lineHeight: 20,

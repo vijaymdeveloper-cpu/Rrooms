@@ -33,11 +33,11 @@ export default function Tabs() {
             iconName = focused ? 'person' : 'person-outline';
           }
 
-          return <Ionicons name={iconName} size={22} color={color} />;
+          return <Ionicons name={iconName} size={24} color={color} />;
         },
 
         tabBarActiveTintColor: '#ff9d25',
-        tabBarInactiveTintColor: 'gray',
+        tabBarInactiveTintColor: '#333',
         tabBarStyle: {
           height: 80,
           paddingTop: 5,
@@ -45,6 +45,7 @@ export default function Tabs() {
         },
         tabBarLabelStyle: {
           fontSize: 12,
+          fontWeight: '700',
           paddingTop: 2
         }
       })}

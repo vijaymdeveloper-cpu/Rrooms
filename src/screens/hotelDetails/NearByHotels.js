@@ -27,7 +27,7 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles }) => {
     return (
         <View style={commonStyles.mt_5}>
             <View style={[commonStyles.flexBetween, commonStyles.mb_3]}>
-                <Text style={commonStyles.text_4}>{'Popular NearBy'}</Text>
+                <Text style={commonStyles.text_4}>{'Popular Near By'}</Text>
             </View>
             <ScrollView
                 horizontal
@@ -42,19 +42,37 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles }) => {
                         const today = moment();
                         let xPrice = []
                         let mPrice = 0
-                        item?.Rooms.forEach((item) => {
-                            const fromDate = moment(item?.fromDate);
-                            const toDate = moment(item?.toDate);
+                        item?.Rooms.forEach((items) => {
+                            const fromDate = moment(items?.fromDate);
+                            const toDate = moment(items?.toDate);
                             const isTodayInRange =
                                 today.isSameOrAfter(fromDate, "day") &&
                                 today.isSameOrBefore(toDate, "day");
-                            xPrice.push(isTodayInRange ? item?.offerPrice : item?.regularPrice);
+                            const offerPriceRaw = JSON.parse(items?.offerPrice || "null");
+                            const offerPrice =
+                                offerPriceRaw && Object.keys(offerPriceRaw).length > 0
+                                    ? offerPriceRaw
+                                    : null;
+                            xPrice.push(isTodayInRange ? offerPrice[moment(items?.fromDate).format('YYYY-MM-DD')]?.find((room) => room.slot === "FullDay").price : items?.regularPrice);
                             mPrice = Math.min(...xPrice);
                         });
                         return (
                             <View key={index} style={styles.card}>
+                                {item?.allowHourly === 1 && (
+                                    <View style={{
+                                        position: 'absolute',
+                                        zIndex: 1,
+                                        backgroundColor: '#000000',
+                                        padding: 8,
+                                        borderTopLeftRadius: 12,
+                                        borderBottomRightRadius: 8,
+                                        top: 0,
+                                        right: 0
+                                    }}>
+                                        <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold' }} >Hourly</Text>
+                                    </View>
+                                )}
                                 <Image
-                                    // source={{ uri: primaryImg ? `${baseImgUrl}${primaryImg}` : `${baseImgUrl}${img}` }}
                                     source={
                                         primaryImg
                                             ? { uri: `${baseImgUrl}${primaryImg}` }

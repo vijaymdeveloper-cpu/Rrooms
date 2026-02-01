@@ -47,8 +47,8 @@ const Services = {
     searchPropertiesService: (params) => {
         return api.get(params ? dictionary.searchProperties() + params : dictionary.searchProperties())
     },
-    getPropertiesForHomeService: () => {
-        return api.get(dictionary.getPropertiesForHome())
+    getPropertiesForHomeService: (param) => {
+        return api.get(dictionary.getPropertiesForHome(param))
     },
     singlePropertyService: (id) => {
         return api.get(dictionary.singleProperty(id))
@@ -87,6 +87,10 @@ const Services = {
     },
     createBookingLogService: (data) => {
         return api.post(dictionary.createBookingLog(), data)
+    },
+
+    paymentGatewayService: (id, body) => {
+        return api.get(dictionary.paymentGatewayUrl(id, body))
     },
 
     foodListService: (id) => {

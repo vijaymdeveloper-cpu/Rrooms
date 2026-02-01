@@ -7,9 +7,15 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Clipboard from "@react-native-clipboard/clipboard";
+import { useDispatch, useSelector } from "react-redux";
+import services from "@api/services";
 import { commonStyles } from "@assets/styles/commonStyles";
+import { saveCouponDiscount } from '@store/slices/authSlice';
+import { showToast } from '@utils/Toaster';
 
-const CouponCard = ({ item, onApply, extraDetails = true }) => {
+const CouponCard = ({ item, extraDetails = true, propertyId, navigation }) => {
+
+  const dispatch = useDispatch();
 
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-IN", {
@@ -21,6 +27,19 @@ const CouponCard = ({ item, onApply, extraDetails = true }) => {
   const copyCode = (code) => {
     Clipboard.setString(code);
   };
+
+  const onApply = async (item) => {
+    try {
+      const res = await services.applyCouponService(propertyId, item?.code)
+      console.log('res', res)
+      if (res?.data?.status) {
+        dispatch(saveCouponDiscount(res?.data?.data?.amount))
+        showToast('message', 'Coupon applied successfully!');
+        navigation.goBack()
+      }
+    }
+    catch (err) { console.log(err) }
+  }
 
   return (
     <View style={styles.card}>
@@ -37,13 +56,17 @@ const CouponCard = ({ item, onApply, extraDetails = true }) => {
             Valid till {formatDate(item?.expireAt)}
           </Text>
         </View>
+        {
+          propertyId !== undefined &&
+          <TouchableOpacity
+            style={styles.applyBtn}
+            onPress={() => onApply(item)}
+          >
+            <Text style={styles.applyText}>Apply</Text>
+          </TouchableOpacity>
+        }
 
-        <TouchableOpacity
-          style={styles.applyBtn}
-          onPress={() => onApply?.(item)}
-        >
-          <Text style={styles.applyText}>Apply</Text>
-        </TouchableOpacity>
+
       </View>
 
       {/* Coupon Code */}

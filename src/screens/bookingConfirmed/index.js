@@ -92,6 +92,13 @@ export default function BookingConfirmedScreen({ route, navigation }) {
       .catch(err => console.error(err));
   };
 
+  const handlePayment = () => {
+    navigation.navigate('Payment', {
+      BookingId: BookingId,
+      isPayAtHotelEnabled: false
+    });
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -192,14 +199,14 @@ export default function BookingConfirmedScreen({ route, navigation }) {
           </View>
 
           <View style={[commonStyles.row, commonStyles.mt_1, { gap: 12 }]}>
-            <TouchableOpacity 
-            style={[commonStyles.btn, commonStyles.btnPrimary, { flex: 1 }]}
-            onPress={()=> navigation.navigate('Tabs', { screen: 'Bookings' })}>
+            <TouchableOpacity
+              style={[commonStyles.btn, commonStyles.btnPrimary, { flex: 1 }]}
+              onPress={() => navigation.navigate('Tabs', { screen: 'Bookings' })}>
               <Text style={commonStyles.btnText}>View Booking</Text>
             </TouchableOpacity>
             {
               booking?.dueAmount > 0 &&
-              <TouchableOpacity style={[commonStyles.btn, commonStyles.btnSecondary, { flex: 1 }]}>
+              <TouchableOpacity style={[commonStyles.btn, commonStyles.btnSecondary, { flex: 1 }]} onPress={handlePayment}>
                 <Text style={commonStyles.btnText}> {' '} Pay Now {' '}</Text>
               </TouchableOpacity>
             }

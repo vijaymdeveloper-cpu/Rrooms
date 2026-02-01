@@ -34,7 +34,7 @@ export default TravelerChoice;
 
 const styles = StyleSheet.create({
   card: {
-    width: 245,
+    width: 265,
     borderRadius: 10,
     overflow: "hidden",
     backgroundColor: "#fff",
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: "100%",
-    height: 150,
+    height: 270,
   },
   cardTitle: {
     fontSize: 16,

@@ -7,8 +7,99 @@ import Interceptor from "./api/Interceptor";
 
 import Toast from 'react-native-toast-message';
 import Toaster from './utils/Toaster'
+import VersionCheck from "react-native-version-check";
+import { AppState, Linking, Platform, ToastAndroid } from "react-native";
+import { useEffect } from "react";
+import appsFlyer from 'react-native-appsflyer';
+
+
 
 export default function App() {
+
+  const updateApp = () => {
+    VersionCheck.getStoreUrl({
+      appID: "com.rrooms",
+      appName: "RROOMS",
+    })
+      .then((url) => {
+        Linking.canOpenURL(url)
+          .then((supported) => {
+            if (!supported) {
+            } else {
+              if (Platform.OS === "ios")
+                return Linking.openURL("https://apps.apple.com/in/app/id6477883837");
+              else
+                return Linking.openURL(url);
+            }
+          })
+          .catch((err) => console.error("An error occurred", err));
+      })
+      .catch((err) => { });
+  };
+
+  const checkAppUpdate = () => {
+    VersionCheck.needUpdate().then((res) => {
+      console.log("checkAppUpdate", res)
+      if (res.isNeeded) {
+        ToastAndroid.show(
+          "New update available, Please update !",
+          ToastAndroid.LONG
+        );
+        updateApp();
+      }
+    });
+  };
+
+
+  const _handleAppStateChange = (nextState) => {
+    console.log("AppState", nextState);
+    if (nextState === "active") {
+      checkAppUpdate();
+    }
+  };
+
+  useEffect(() => {
+    AppState.addEventListener("change", _handleAppStateChange);
+
+    appsFlyer.onDeepLink((res) => {
+      // alert(JSON.stringify(res))
+      console.log('onDeepLink', res);
+      const deeplinkData = JSON.parse(res.data)
+      console.log("deeplinkData", deeplinkData)
+      // if (deeplinkData.data.deep_link_value) {
+      //   setReferralCode(deeplinkData.data.deep_link_value);
+      //   deepLinkPubSub.publish(deeplinkData);
+      // }
+    });
+
+    appsFlyer.onInstallConversionData((res) => {
+      if (res?.data?.af_status === 'Non-organic') {
+        console.log("Deferred deep link data:", res.data);
+      }
+    });
+
+    appsFlyer.initSdk(
+      {
+        devKey: '53fYb5GXV2NoXkWNqHEpgf',
+        isDebug: true,
+        appId: '6477883837', // only for iOS
+        onAppOpenAttribution: true,
+        onInstallConversionDataListener: true, //Optional
+        onInstallConversionDataLoaded: true,
+        onDeepLinkListener: true, //Optional
+        timeToWaitForATTUserAuthorization: 10 //for iOS 14.5
+      },
+      (result) => {
+        console.log("appsflyer result", result);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+
+  }, []);
+
+
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>

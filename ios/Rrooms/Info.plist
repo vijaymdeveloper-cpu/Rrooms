@@ -26,6 +26,25 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+
+	<!-- Facebook SDK Config -->
+
+	<key>CFBundleURLTypes</key>
+	<array>
+	<dict>
+	<key>CFBundleURLSchemes</key>
+	<array>
+		<string>881383194633290</string>
+	</array>
+	</dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>881383194633290</string>
+	<key>FacebookClientToken</key>
+	<string>454eb5986d6da44ddabb335d73be9aa9</string>
+	<key>FacebookDisplayName</key>
+	<string>RRooms</string>
+
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -39,6 +58,10 @@
 	<true/>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Ionicons.ttf</string>
+		<string>MaterialIcons.ttf</string>
+		<string>Foundation.ttf</string>
+		<string>FontAwesom.ttf</string>
 		<string>Inter-Bold.ttf</string>
 		<string>Inter-Medium.ttf</string>
 		<string>Inter-Regular.ttf</string>

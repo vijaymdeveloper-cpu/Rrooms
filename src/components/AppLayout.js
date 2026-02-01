@@ -43,7 +43,6 @@ const AppLayout = ({ children, background = { backgroundColor: "#ebebebff" }, st
       style={styles.viewArea}
     >
 
-
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         {children}
       </SafeAreaView>

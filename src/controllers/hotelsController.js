@@ -18,6 +18,7 @@ export default function useHotelsController() {
         if (!dispatch) return;
 
         const filters = { ...filterValues };
+        console.log('filters', filters)
 
         /* ------------------ SORT ------------------ */
         const byPrice =
@@ -67,6 +68,8 @@ export default function useHotelsController() {
         const travellerChoice = filters?.travellerChoice?.length
             ? `&traveller_choice=${filters.travellerChoice.toString()}`
             : "";
+
+            console.log('locality', locality)
 
         /* ------------------ FINAL URL ------------------ */
         const finalParams =

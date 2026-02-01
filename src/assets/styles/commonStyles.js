@@ -57,7 +57,7 @@ export const commonStyles = StyleSheet.create({
     btnText: {
         color: "#fff",
         fontWeight: "bold",
-        fontSize: 16,
+        fontSize: 14,
     },
     btnPrimary: {
         backgroundColor: "#fb961b",

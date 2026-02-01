@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { baseImgUrl } from '@api/client';
 import { isValidImage } from '@utils';
+import ROUTES from "../navigation/routes";
 
 const Header = ({ showBack = false, profileIcon = true }) => {
 
@@ -38,7 +39,9 @@ const Header = ({ showBack = false, profileIcon = true }) => {
 
             {
                 profileIcon &&
-                <View>
+                <TouchableOpacity 
+                activeOpacity={0.7}
+                onPress={() => navigation.navigate(ROUTES.ACCOUNT)}>
                     <Image
                         source={
                             isValidImage(userDetail?.profileImage)
@@ -47,7 +50,7 @@ const Header = ({ showBack = false, profileIcon = true }) => {
                         }
                         style={styles.profile}
                     />
-                </View>
+                </TouchableOpacity>
             }
 
         </View>
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     textLogo: {
-        color: '#3C4043',
+        color: '#000',
         fontWeight: '900',
         fontSize: 22
     },

@@ -9,7 +9,7 @@ export const applyTax = (amount, taxPercent = 20) => {
   return Math.round(total);
 }
 
-export const reverseApplyTax = (amount, discountPercent = 16) => {
+export const reverseApplyTax = (amount, discountPercent = 20) => {
   const numericAmount = Number(amount) || 0;
   const divisor = 1 - discountPercent / 100;
   if (divisor <= 0) return 0;
@@ -94,4 +94,15 @@ export function getTimeRangeFromSlot(startTime, slot) {
   const endStr = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
 
   return `${startTime} to ${endStr}`;
+}
+
+export function calculateFinalPrice(price) {
+  const amount = Number(price) || 0;
+  const tax = Math.round(amount * 0.05);
+  const total = Math.round(amount + tax);
+
+  return {
+    tax,
+    total
+  };
 }

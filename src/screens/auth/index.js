@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,9 @@ import {
   Platform,
   ScrollView,
   StatusBar,
-  ActivityIndicator
+  ActivityIndicator,
+  PermissionsAndroid,
+  BackHandler
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LinearGradient from "react-native-linear-gradient";
@@ -20,29 +22,41 @@ import { useForm, Controller } from "react-hook-form";
 import services from "@api/services";
 import { commonStyles } from '@assets/styles/commonStyles';
 import { setGuest } from "@store/slices/authSlice";
+import {
+  getHash,
+  requestHint,
+  useOtpVerify,
+} from 'react-native-otp-verify';
 
 export default function LoginScreen({ navigation }) {
 
   const dispatch = useDispatch();
-  const { control, handleSubmit, formState: { errors } } = useForm();
+  const { control, handleSubmit, formState: { errors },setValue,getValues } = useForm();
 
   const [loading, setLoading] = useState(false);
 
-  const handleSendOtp = async (data) => {
+    const { hash } = useOtpVerify({ numberOfDigits: 4 });
+
+
+  const handleSendOtp = async (hashKey) => {
     if (loading) return;
 
     try {
       setLoading(true);
-
-      const payload = { mobile: data.mobile };
+    const { mobile } = getValues();
+      const payload = {
+        mobile: mobile,
+        hash_key: hashKey[0] || hash[0],
+        platform: 2
+      };
       const res = await services.sendOtpService(payload);
 
       if (res.data.status) {
         if (res?.data?.isNewUser) {
-          navigation.navigate("Signup", { mobile: data.mobile });
+          navigation.navigate("Signup", { mobile: mobile});
         } else {
           navigation.navigate("Otp", {
-            mobile: data.mobile,
+            mobile: mobile,
             name: res?.data?.data?.name,
             email: res?.data?.data?.email
           });
@@ -55,14 +69,27 @@ export default function LoginScreen({ navigation }) {
     }
   };
 
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      requestHint().then(number => {
+        setValue("mobile", number.substring(number.length - 10, number.length))
+        getHash().then(hash => {
+          console.log("Hash key: ", hash);
+          handleSendOtp(hash)
+        }).catch(console.log);
+      })
+    }
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => navigation.goBack()
+    );
+    return () => {
+      backHandler.remove();
+    }
+  }, []);
+
 
   return (
-    // <ImageBackground
-    //   source={require("@assets/images/bg-screen.png")}
-    //   style={styles.bg}
-    //   resizeMode="cover">
-
-
 
     <LinearGradient
       colors={["#ffdcc5ff", "#fff", "#dfdfdfff"]}
@@ -123,6 +150,7 @@ export default function LoginScreen({ navigation }) {
                       maxLength={10}
                       value={value}
                       onChangeText={onChange}
+
                       disabled={loading}
                     />
                   )}

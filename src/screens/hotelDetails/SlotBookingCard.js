@@ -11,6 +11,7 @@ import services from "@api/services";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import CalendarModal from '@utils/Calendar';
 import HourPopupPicker from './HourPopupPicker'
+import { calculateFinalPrice ,reverseApplyTax} from '@utils';
 
 const ALL_SLOTS = ["3Hrs", "6Hrs", "9Hrs", "FullDay", "FullDayStatus"];
 
@@ -52,7 +53,6 @@ const SlotBookingCard = ({
             const statusItem = statusSlots.find(s => s.slot === slot);
             const priceItem = priceSlots.find(p => p.slot === slot);
             const timeItem = timeSlots.find(t => t.slot === slot);
-            const fullDayStatusItem = fullDayStatus.find(t => t.slot === slot);
 
             let fallbackPrice = null;
             switch (slot) {
@@ -226,40 +226,60 @@ const SlotBookingCard = ({
 
                                 ]}
                             >
-                                <Text style={styles.hours}>{item.slot} Slot</Text>
-                                <Text style={{ fontSize: 10, color: '#666' }}>Flexible Check-in</Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <View>
+                                        <Text style={styles.hours}>{item.slot} Slot</Text>
+                                        <Text style={{ fontSize: 10, color: '#666' }}>Flexible Check-in</Text>
+                                    </View>
 
-                                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                                    <Text style={styles.price}> {item?.price > 0 ? `₹${item.price}` : 'Not Available'} </Text>
-                                    <Text style={[styles.oldPrice]}> ₹{applyTax(item?.price)}</Text>
+                                    <View>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                                            <Text style={[styles.price, { fontSize: item?.price === 0 ? 10 : 14 }]}>{item?.price > 0 ? `₹${item.price}` : 'Not Available'} </Text>
+                                            <Text style={[styles.oldPrice]}> ₹{reverseApplyTax(item?.price)}</Text>
+                                        </View>
+                                        <Text style={{ fontSize: 10, color: '#666' }}>{`+₹${calculateFinalPrice(item?.price).tax} taxes`}</Text>
+                                    </View>
+                                    <View style={styles.offerBadge}>
+                                        <Text style={styles.offerText}>20% OFF</Text>
+                                    </View>
                                 </View>
-                                <Text style={{ fontSize: 10, color: '#666', marginBottom: 5 }}>Excl. Taxes</Text>
 
-                                <HourPopupPicker
-                                    hoursArray={getHoursArray(item?.checkIn, item?.checkOut)}
-                                    selectedHour={selectedTimes[index]}
-                                    disabled={isDisabled}
-                                    onChange={(value) =>
-                                        checkRoomAvailabilityOnCheckIn(
-                                            value,
-                                            item?.slot,
-                                            index,
-                                            item?.checkIn,
-                                            item?.checkOut
-                                        )
-                                    }
-                                />
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        borderTopWidth: 1,
+                                        borderTopColor: '#ebebeb',
+                                        paddingTop: 8,
+                                        marginTop: 12
+                                    }}>
+                                    <HourPopupPicker
+                                        hoursArray={getHoursArray(item?.checkIn, item?.checkOut)}
+                                        selectedHour={selectedTimes[index]}
+                                        disabled={isDisabled}
+                                        onChange={(value) =>
+                                            checkRoomAvailabilityOnCheckIn(
+                                                value,
+                                                item?.slot,
+                                                index,
+                                                item?.checkIn,
+                                                item?.checkOut
+                                            )
+                                        }
+                                    />
 
-                                <TouchableOpacity
-                                    style={[styles.bookBtn, isDisabled && styles.bookBtnDisabled]}
-                                    disabled={isDisabled}
-                                    activeOpacity={isDisabled ? 1 : 0.7}
-                                    onPress={() => {
-                                        handleSlotWiseBooking(index, item?.slot, item?.price, item?.checkIn, item?.checkOut)
-                                    }}
-                                >
-                                    <Text style={styles.bookText}>Book Now</Text>
-                                </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.bookBtn, isDisabled && styles.bookBtnDisabled]}
+                                        disabled={isDisabled}
+                                        activeOpacity={isDisabled ? 1 : 0.7}
+                                        onPress={() => {
+                                            handleSlotWiseBooking(index, item?.slot, item?.price, item?.checkIn, item?.checkOut)
+                                        }}
+                                    >
+                                        <Text style={styles.bookText}>Book Now</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         )
                     })}
@@ -285,26 +305,12 @@ const SlotBookingCard = ({
 export default SlotBookingCard;
 
 const styles = StyleSheet.create({
-    card: {
-        backgroundColor: "#fff",
-        borderRadius: 14,
-        // elevation: 1,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-        overflow: "hidden",
-    },
-    row: {
-        flexDirection: 'row'
-    },
     column: {
-        width: '33.33%',
-        alignItems: "center",
-        paddingVertical: 10,
-        paddingHorizontal: 6,
-    },
-    rightBorder: {
-        borderRightWidth: 1,
-        borderColor: "#E5E7EB",
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        elevation: 4,
+        padding: 14,
+        marginTop: 16,
     },
     hours: {
         fontSize: 14,
@@ -333,15 +339,16 @@ const styles = StyleSheet.create({
         marginLeft: 4
     },
     bookBtn: {
-        backgroundColor: "#456efe",
+        backgroundColor: "#000000",
         paddingHorizontal: 14,
-        paddingVertical: 7,
+        paddingVertical: 14,
         borderRadius: 8,
     },
     bookText: {
         color: "#fff",
         fontSize: 12,
         fontWeight: "600",
+        textAlign: 'center'
     },
     bookBtnDisabled: {
         backgroundColor: "#9CA3AF",
@@ -350,13 +357,23 @@ const styles = StyleSheet.create({
     dateRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        backgroundColor: '#eee',
+        backgroundColor: '#ffffff',
         borderRadius: 12,
         padding: 14,
-        marginBottom: 12
     },
     dateText: {
         fontSize: 16,
         fontWeight: '600'
+    },
+    offerBadge: {
+        backgroundColor: '#16A34A',
+        borderRadius: 10,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    offerText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: '600',
     },
 });

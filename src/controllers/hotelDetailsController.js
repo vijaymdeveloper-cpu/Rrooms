@@ -37,6 +37,7 @@ export default function useHotelDetailsController() {
     const [showAllAmenities, setShowAllAmenities] = useState(false);
     const [roomCategories, setRoomCategories] = useState([]);
     const [checkToday, setCheckToday] = useState(moment().format('YYYY-MM-DD'));
+    const [showGallery, setShowGallery] = useState(false);
 
     const fetchPropertyDetail = async (id) => {
         setLoading(true)
@@ -127,6 +128,8 @@ export default function useHotelDetailsController() {
         fetchPropertyDetail,
         hotelDetails,
         loading,
+        showGallery,
+        setShowGallery,
         showPolicy,
         plan,
         setPlan,

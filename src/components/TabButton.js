@@ -28,7 +28,7 @@ export default TabButton;
 
 const styles = StyleSheet.create({
     tabItem: {
-        // width: '50%',
+        backgroundColor: '#fff',
         flex: 1,
         alignItems: 'center',
         paddingVertical: 12,
