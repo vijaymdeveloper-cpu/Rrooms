@@ -15,6 +15,16 @@ export const commonStyles = StyleSheet.create({
         fontWeight: '700',
         marginBottom: 15
     },
+    loadingView: {
+        height: '100%',
+        width: '100%',
+        position: 'absolute',
+        top: 0,
+        zIndex: 10,
+        backgroundColor: 'rgba(255, 255, 255, 0.6)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     formGroup: {
         marginBottom: 15
     },
@@ -114,7 +124,7 @@ export const commonStyles = StyleSheet.create({
         // borderColor: "#ddd",
         opacity: 0.6,
     },
-    row: { 
+    row: {
         flexDirection: 'row'
     },
     rowCenter: {

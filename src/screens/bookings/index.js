@@ -13,7 +13,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useSelector } from "react-redux";
 import { commonStyles } from '@assets/styles/commonStyles';
-import { FOOD_PLAN, BOOKING_STATUS, PAYMENT_STATUS, PAYMENT_STATUS_COLOR } from '@constants';
+import { FOOD_PLAN, BOOKING_STATUS, PAYMENT_STATUS, PAYMENT_STATUS_COLOR, FOOD_ORDER_STATUS } from '@constants';
 import { baseImgUrl } from "@api/client";
 import moment from "moment";
 import Header from '@components/Header'
@@ -40,8 +40,13 @@ const BookingScreen = ({ navigation }) => {
   const [foodList, setFoodList] = useState([]);
   const [assignedRooms, setAssignedRooms] = useState([])
   const [showMenu, setShowMenu] = useState(false);
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   const { userDetail } = useSelector((state) => state.auth)
+
+  const toggleOrder = (orderId) => {
+    setExpandedOrderId(prev => (prev === orderId ? null : orderId));
+  };
 
   const fetchBookedHotels = async () => {
     setLoading(true)
@@ -119,6 +124,8 @@ const BookingScreen = ({ navigation }) => {
       isPayAtHotelEnabled: false
     });
   }
+
+  console.log('filtered', filtered)
 
   return (
     <View style={commonStyles.screenWrapper}>
@@ -211,9 +218,81 @@ const BookingScreen = ({ navigation }) => {
                       <View style={styles.paymentBox}>
                         <InfoRow label="Total Amount" value={`₹ ${item?.bookingAmout}`} bold />
                         <Text style={[styles.paidText, { color: PAYMENT_STATUS_COLOR[item?.PaymentStatus] }]}>
-                          {PAYMENT_STATUS[item?.PaymentStatus]}
+                          {/* {PAYMENT_STATUS[item?.PaymentStatus]} */}
+                          {(item?.PaymentStatus == 1 && item?.paymentMode == 1) && 'Paid'}
+                          {(item?.PaymentStatus == 0 && item?.paymentMode == 1) && 'Partial Paid'}
+                          {(item?.PaymentStatus == 0 && item?.paymentMode == 0) && 'Pay at Hotel'}
                         </Text>
                       </View>
+
+                      {item?.FoodOrders?.length ? (
+                        <View style={styles.paymentBox}>
+                          <Text style={[commonStyles.text_6, commonStyles.fwBold, commonStyles.mb_2]}>
+                            Food Orders
+                          </Text>
+
+                          {item?.FoodOrders?.map((f) => {
+                            const isExpanded = expandedOrderId === f?.id;
+
+                            return (
+                              <View key={f?.id} style={commonStyles.mb_2}>
+                                {/* Header */}
+                                <Pressable
+                                  onPress={() => toggleOrder(f?.id)}
+                                  style={[commonStyles.rowBetweenAligned, commonStyles.mt_1]}
+                                >
+                                  {/* Left: Order ID + Icon */}
+                                  <View style={commonStyles.rowAligned}>
+                                    <Text style={commonStyles.badgeText}>#{f?.id}</Text>
+
+                                    <Ionicons
+                                      name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                                      size={12}
+                                      color="#6B7280"
+                                      style={{ marginLeft: 6 }}
+                                    />
+                                  </View>
+
+                                  {/* Right: Status */}
+                                  <Text
+                                    style={[
+                                      commonStyles.text_7,
+                                      { color: FOOD_ORDER_STATUS[f?.orderStatus]?.color }
+                                    ]}
+                                  >
+                                    {FOOD_ORDER_STATUS[f?.orderStatus]?.label}
+                                  </Text>
+                                </Pressable>
+
+                                {/* Order Items */}
+                                {isExpanded && (
+                                  <View style={commonStyles.mt_1}>
+                                    {JSON.parse(f?.orderItems || '[]')?.map((data) => (
+                                      <View
+                                        key={data?.id}
+                                        style={[commonStyles.rowBetweenAligned, commonStyles.mt_1]}
+                                      >
+                                        <Text style={[styles.foodName, commonStyles.text_7]}>
+                                          {data?.name}
+                                        </Text>
+                                        <Text style={[styles.foodPrice, commonStyles.text_7]}>
+                                          ₹ {data?.price}
+                                        </Text>
+                                        <Text style={commonStyles.text_7}>
+                                          x{data?.qty}
+                                        </Text>
+                                      </View>
+                                    ))}
+                                  </View>
+                                )}
+                              </View>
+                            );
+                          })}
+                        </View>
+                      ) : null}
+
+
+
 
                       {/* Actions */}
                       <View style={[commonStyles.rowBetween, commonStyles.mt_3, { gap: 10, flexWrap: "wrap" }]}>
@@ -444,4 +523,18 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 14,
   },
+  foodName: {
+    width: '70%'
+  },
+  foodPrice: {
+    width: '15%'
+  },
+  foodQty: {
+    width: '15%'
+  },
+  arrow: {
+    marginLeft: 6,
+    fontSize: 12,
+    color: '#6B7280', // gray
+  }
 });

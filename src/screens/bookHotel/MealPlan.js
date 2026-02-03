@@ -18,8 +18,6 @@ const MealPlan = ({ mealCharges, mealPlan, setMealPlan }) => {
         }
     };
 
-    console.log('mealPlan', mealPlan)
-
 
     return (
 

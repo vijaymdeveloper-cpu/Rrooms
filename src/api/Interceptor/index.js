@@ -10,12 +10,12 @@ const Interceptor = () => {
 
             const fullUrl = `${config.baseURL || ''}${config.url || ''}`;
 
-            // console.log("➡️ API REQUEST:", {
-            //     url: fullUrl,
-            //     method: config.method,
-            //     data: config.data,
-            //     params: config.params,
-            // });
+            console.log("➡️ API REQUEST:", {
+                url: fullUrl,
+                method: config.method,
+                data: config.data,
+                params: config.params,
+            });
 
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;

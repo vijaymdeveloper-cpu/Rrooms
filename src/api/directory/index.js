@@ -31,6 +31,7 @@ const Dictionary = {
     changeBookingStatus: (id)=> `booking/room-booking/${id}`,
     getBooking: (id)=> `booking/room-booking/${id}`,
     createBookingLog: ()=> `booking/booking-logs`,
+    paymentGatewayUrl: (id, body) => `rrooms-property/initiate-payment-razorpay?booking_id=${id}&paymentType=${body}`,
 
     foodList: (id)=> `rrooms-property/food-menu-item?property_id=${id}`,
     foodOrder: ()=> `rrooms-property/food-order`,

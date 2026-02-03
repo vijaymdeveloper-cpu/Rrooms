@@ -1,29 +1,29 @@
 export const POPULAR_CITIES = [
-    "Lucknow",
-    "Ayodhya",
-    "Agra",
-    "Bareilly",
-    "Varanasi",
-    "Prayagraj",
-    "Vrindavan",
-    "Chitrakoot",
-    "Kanpur",
-    "Sitapur",
+  "Lucknow",
+  "Ayodhya",
+  "Agra",
+  "Bareilly",
+  "Varanasi",
+  "Prayagraj",
+  "Vrindavan",
+  "Chitrakoot",
+  "Kanpur",
+  "Sitapur",
 ];
 
 export const CITY_PRIORITY = [
-    "Lucknow",
-    "Agra",
-    "Bareilly",
-    "Prayagraj",
+  "Lucknow",
+  "Agra",
+  "Bareilly",
+  "Prayagraj",
 ];
 
 export const PROPERTY_CATEGORY_COLORS = {
-    1: '#1FCC75',
-    2: '#5b0f57',
-    3: '#E91E63',
-    4: '#FF9800',
-    5: '#FF9800'
+  1: '#1FCC75',
+  2: '#5b0f57',
+  3: '#E91E63',
+  4: '#FF9800',
+  5: '#FF9800'
 }
 
 // export const BOOKING_STATUS = {
@@ -54,6 +54,14 @@ export const FOOD_PLAN = {
   3: 'MAP',
 };
 
+export const FOOD_ORDER_STATUS = {
+  0: { label: 'Order Pending', color: '#F59E0B' },
+  1: { label: 'Accepted by Kitchen', color: '#3B82F6' },
+  2: { label: 'Food is Ready', color: '#10B981' },
+  3: { label: 'Delivered', color: '#22C55E' },
+  4: { label: 'Cancelled', color: '#EF4444' }
+};
+
 export const PAYMENT_STATUS = {
   0: 'Pay at Hotel',
   1: 'Partial Payment',
@@ -67,42 +75,42 @@ export const PAYMENT_STATUS_COLOR = {
 }
 
 export const TRAVEL_OPTIONS = [
-    {
-        title: "Business Travel",
-        subtitle: "",
-        id: 2,
-        img: 'https://rrooms.in/static/media/img-business-travel.6ffe8a65244be43ceedf.png',
-    },
-    {
-        title: "Couple Friendly",
-        subtitle: "",
-        id: 7,
-        img: 'https://rrooms.in/static/media/img-couple-friendly.c940fa7995ee210119be.png',
-    },
-    {
-        title: "Family Vacation",
-        subtitle: "",
-        id: 3,
-        img: 'https://rrooms.in/static/media/img-family-vacation.9587ab26f28862025eaf.png',
-    },
-    {
-        title: "Group Travel",
-        subtitle: "",
-        id: 5,
-        img: 'https://rrooms.in/static/media/img-group-travel.e0c9c2134adfd8d700a7.png',
-    },
-    {
-        title: "Solo Traveler",
-        subtitle: "",
-        id: 6,
-        img: 'https://rrooms.in/static/media/img-solo-travel.1db8332c264f13bf9452.png',
-    },
-    {
-        title: "Hourly-Stays",
-        subtitle: "",
-        id: 8,
-        img: 'https://rrooms.in/static/media/img-hourly-stay.f6e68a2fa6f02779027d.jpeg',
-    },
+  {
+    title: "Business Travel",
+    subtitle: "",
+    id: 2,
+    img: 'https://rrooms.in/static/media/img-business-travel.6ffe8a65244be43ceedf.png',
+  },
+  {
+    title: "Couple Friendly",
+    subtitle: "",
+    id: 7,
+    img: 'https://rrooms.in/static/media/img-couple-friendly.c940fa7995ee210119be.png',
+  },
+  {
+    title: "Family Vacation",
+    subtitle: "",
+    id: 3,
+    img: 'https://rrooms.in/static/media/img-family-vacation.9587ab26f28862025eaf.png',
+  },
+  {
+    title: "Group Travel",
+    subtitle: "",
+    id: 5,
+    img: 'https://rrooms.in/static/media/img-group-travel.e0c9c2134adfd8d700a7.png',
+  },
+  {
+    title: "Solo Traveler",
+    subtitle: "",
+    id: 6,
+    img: 'https://rrooms.in/static/media/img-solo-travel.1db8332c264f13bf9452.png',
+  },
+  {
+    title: "Hourly-Stays",
+    subtitle: "",
+    id: 8,
+    img: 'https://rrooms.in/static/media/img-hourly-stay.f6e68a2fa6f02779027d.jpeg',
+  },
 ]
 
 export const propertyPolicy = [

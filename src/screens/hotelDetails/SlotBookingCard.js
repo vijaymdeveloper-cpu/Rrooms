@@ -187,7 +187,9 @@ const SlotBookingCard = ({
             avilableRoomCount: roomAvilablty?.availableRooms,
             checkinBookingDate: checkToday,
             checkoutBookingDate: checkToday,
-            slotWiseData: slotWiseData
+            slotWiseData: slotWiseData,
+            partialPayment: hotelDetails?.partialPayment,
+            payAtHotel: hotelDetails?.payAtHotel
         };
 
         navigation.navigate('BookHotel', {

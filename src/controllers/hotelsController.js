@@ -18,7 +18,6 @@ export default function useHotelsController() {
         if (!dispatch) return;
 
         const filters = { ...filterValues };
-        console.log('filters', filters)
 
         /* ------------------ SORT ------------------ */
         const byPrice =

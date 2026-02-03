@@ -6,6 +6,7 @@ import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import services from "@api/services";
 import Header from '@components/Header';
+import { mainUrl } from '@api/client'
 
 const paymentOptions = [
     {
@@ -18,7 +19,7 @@ const paymentOptions = [
     },
     {
         id: 2,
-        title: "Pay @464 to Book",
+        title: "Pay to Book",
         value: "PartialPay",
         description: "Secure your booking now",
         icon: require('@assets/images/payment2.png'),
@@ -46,17 +47,28 @@ const PAYMENT_TYPE_MAP = {
 
 const PaymentScreen = ({ route, navigation }) => {
 
-    const { BookingId, isPayAtHotelEnabled = true } = route?.params
+    const [selected, setSelected] = useState(null);
+    const { BookingId, amount, bookingType, payAtHotel, partialPayment, bookingDetail } = route?.params
     const { userDetail } = useSelector((state) => state.auth)
 
-    const filteredPaymentOptions = paymentOptions.filter(option => {
-        if (!isPayAtHotelEnabled && option.value === "PayAtHotel") {
-            return false;
+    console.log('bookingDetail', bookingDetail)
+
+    const isHourly = bookingType === "Hourly";
+    const isFullDay = bookingType === "FullDay";
+    const perSlotAmount = Math.floor(Number(amount) / 4);
+
+    const filteredPaymentOptions = paymentOptions.filter((option) => {
+        if (isHourly) {
+            return option.id === 1;
+        }
+        if (option.id === 2) {
+            return isFullDay && partialPayment === 1;
+        }
+        if (option.id === 3) {
+            return payAtHotel === 1;
         }
         return true;
     });
-
-    const [selected, setSelected] = useState(null);
 
     const bookHandler = async (option) => {
         setSelected(option)
@@ -69,7 +81,6 @@ const PaymentScreen = ({ route, navigation }) => {
                 BookingId,
                 paymentType
             )
-            console.log('resp', resp)
             const { order_id, amount } = resp?.data?.data || {};
 
             openRazorpay(
@@ -77,7 +88,8 @@ const PaymentScreen = ({ route, navigation }) => {
                 amount,
                 paymentType,
                 BookingId,
-                option
+                option,
+                resp?.data?.data?.key
             )
         }
         else {
@@ -91,17 +103,18 @@ const PaymentScreen = ({ route, navigation }) => {
             )
             if (res?.data?.status) {
                 setTimeout(() => {
-                    navigation.navigate('BookingConfirmed', { BookingId })
+                    navigation.navigate('BookingConfirmed', { bookingId: BookingId })
                 }, 1000)
             }
         }
     }
 
-    const openRazorpay = async (orderId, amount, paymentType, bookingId, option) => {
-        const paidAmount = amount / 100;
+    const openRazorpay = async (orderId, amount, paymentType, bookingId, option, key) => {
+
+        const paidAmount = Math.round(amount / 100);
 
         const options = {
-            key: 'rzp_test_Eqmw0XU2XIG31l',
+            key: key,
             amount: amount,
             currency: 'INR',
             name: 'RROOMS',
@@ -119,33 +132,35 @@ const PaymentScreen = ({ route, navigation }) => {
         try {
             const response = await RazorpayCheckout.open(options);
 
-            // 🔹 Razorpay Success
-            await axios.post(
-                `https://rrooms.in/rrooms/api/rrooms-property/razorpay-status-update`,
+            const res = await axios.post(
+                `${mainUrl}/api/rrooms-property/razorpay-status-update` +
+                `?booking_id=${bookingId}` +
+                `&paymentType=${paymentType}` +
+                `&paidAmount=${paidAmount}` +
+                `&userId=${userDetail?.id}` +
+                `&dueAmount=${paymentType === 'Full' ? 0 : bookingDetail?.dueAmount - paidAmount}`,
                 {
-                    booking_id: bookingId,
-                    paymentType,
-                    paidAmount,
-                    userId: userDetail?.id,
-                    dueAmount:
-                        paymentType === 'Full'
-                            ? 0
-                            : bookingDetail?.dueAmount - paidAmount,
-
                     razorpay_order_id: response.razorpay_order_id,
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_signature: response.razorpay_signature,
                 }
             );
-
             const paymentMode =
                 option === 'PayNow' || option === 'PartialPay' ? 1 : 0;
 
-            await services.updateBookingModeStatusService(bookingId, {
+            const newPayload = {
                 status: 1,
                 paymentMode,
                 paymentAmount: paymentType,
-            });
+            }
+            if (paymentType == "Full" && paymentMode == 1) {
+                newPayload.fullPayAmount = paidAmount
+            }
+            if (paymentType == "Partial" && paymentMode == 1) {
+                newPayload.partialPayAmount = paidAmount
+            }
+
+            const x = await services.updateBookingModeStatusService(bookingId, newPayload );
 
             navigation.navigate('BookingConfirmed', { bookingId });
 
@@ -155,48 +170,57 @@ const PaymentScreen = ({ route, navigation }) => {
         }
     };
 
-    // https://rrooms.in/rrooms/api/rrooms-property/initiate-payment-razorpay?booking_id=67173&paymentType=Full
-    // https://rrooms.in/rrooms/api/rrooms-property/initiate-payment-razorpay?booking_id=67178&paymentType=Full
-
 
     return (
         <View style={styles.screenWrapper}>
             <Header showBack={'Select Payment Method'} profileIcon={false} />
             <ScrollView>
-                {
-                    filteredPaymentOptions?.map((option) => {
-                        return (
-                            <TouchableOpacity
-                                key={option.id}
-                                activeOpacity={0.8}
-                                style={[
-                                    styles.card,
-                                    selected === option.value && { borderColor: option.color, backgroundColor: "#FFF8F0" },
-                                ]}
-                                onPress={() => bookHandler(option?.value)}
-                            >
-                                <View style={styles.cardHeader}>
-                                    <Image source={option.icon} style={styles.icon} />
-                                    <View style={{ flex: 1, marginLeft: 12 }}>
-                                        <Text style={styles.title}>{option.title}</Text>
-                                        <Text style={styles.description}>{option.description}</Text>
-                                    </View>
-                                    {selected === option.value && (
-                                        <Ionicons name="checkmark-circle" size={24} color={option.color} />
-                                    )}
+                {filteredPaymentOptions.map((option) => {
+
+                    const isFullDayPartialPay =
+                        bookingType === "FullDay" && option.id === 2;
+
+                    const title = isFullDayPartialPay
+                        ? `Pay @ ₹${perSlotAmount} to Book`
+                        : option.title;
+
+                    return (
+                        <TouchableOpacity
+                            key={option.id}
+                            activeOpacity={0.8}
+                            style={[
+                                styles.card,
+                                selected === option.value && {
+                                    borderColor: option.color,
+                                    backgroundColor: "#FFF8F0",
+                                },
+                            ]}
+                            onPress={() => bookHandler(option.value)}
+                        >
+                            <View style={styles.cardHeader}>
+                                <Image source={option.icon} style={styles.icon} />
+                                <View style={{ flex: 1, marginLeft: 12 }}>
+                                    <Text style={styles.title}>{title}</Text>
+                                    <Text style={styles.description}>{option.description}</Text>
                                 </View>
 
-                                {option.id !== 3 && (
-                                    <View style={styles.paymentLogos}>
-                                        <Image
-                                            source={require('@assets/images/payment-methods.png')}
-                                            style={styles.logo}
-                                        />
-                                    </View>
+                                {selected === option.value && (
+                                    <Ionicons name="checkmark-circle" size={24} color={option.color} />
                                 )}
-                            </TouchableOpacity>
-                        )
-                    })}
+                            </View>
+
+                            {option.id !== 3 && (
+                                <View style={styles.paymentLogos}>
+                                    <Image
+                                        source={require('@assets/images/payment-methods.png')}
+                                        style={styles.logo}
+                                    />
+                                </View>
+                            )}
+                        </TouchableOpacity>
+                    );
+                })}
+
             </ScrollView>
         </View>
     );

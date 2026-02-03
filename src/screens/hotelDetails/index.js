@@ -9,7 +9,8 @@ import {
     Dimensions,
     StatusBar,
     TouchableOpacity,
-    Share
+    Share,
+    RefreshControl
 } from "react-native";
 import moment from "moment";
 // import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
@@ -32,6 +33,7 @@ export default function HotelDetailsScreen({ route, navigation }) {
 
     const { bookingType } = route?.params || {};
     const { hotelId, hotelName, img } = route?.params?.hotel || {};
+    const [refreshing, setRefreshing] = useState(false);
 
     const {
         fetchPropertyDetail,
@@ -89,10 +91,24 @@ export default function HotelDetailsScreen({ route, navigation }) {
         }
     };
 
-    console.log('PropertyImage', hotelDetails?.PropertyImage)
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchPropertyDetail(hotelId);
+        setRefreshing(false);
+    };
 
     return (
-        <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={styles.container}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    colors={["#1e90ff"]}
+                    tintColor="#1e90ff"
+                />
+            }>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
             {

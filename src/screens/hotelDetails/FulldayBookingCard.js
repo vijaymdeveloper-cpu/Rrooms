@@ -77,7 +77,9 @@ const FulldayBookingCard = ({
             slot,
             priceLast,
             checkinBookingDate: startDate,
-            checkoutBookingDate: endDate
+            checkoutBookingDate: endDate,
+            partialPayment: hotelDetails?.partialPayment,
+            payAtHotel: hotelDetails?.payAtHotel
         };
 
         navigation.navigate('BookHotel', {
@@ -151,7 +153,7 @@ const FulldayBookingCard = ({
 
                     <View style={styles.priceRow}>
                         <Text style={styles.price}>₹{finalPrice}
-                            <Text style={{fontSize:10}} >{`+₹${calculateFinalPrice(finalPrice).tax} taxes`}</Text>
+                            <Text style={{ fontSize: 12 }} >{` + ₹${calculateFinalPrice(finalPrice).tax} taxes`}</Text>
                         </Text>
 
                         {finalPrice && (
@@ -163,20 +165,20 @@ const FulldayBookingCard = ({
                             </Text>
                         </View>
                     </View>
-                </View>
-                <View style={styles.button}>
-                    <TouchableOpacity
-                        style={[styles.bookBtn, isDisabled && styles.bookBtnDisabled]}
-                        disabled={
-                            notAvail == 0 ||
-                            (hotelDetails?.status != 1) ||
-                            (isFullDayBlocked?.status == "Sold-Out") ||
-                            checkStatus?.soldOut == true
-                        }
-                        onPress={() => handleDailyBooking(item, 24, finalPrice)}
-                    >
-                        <Text style={styles.bookText}>Book</Text>
-                    </TouchableOpacity>
+                    <View style={{ marginTop: 3 }}>
+                        <TouchableOpacity
+                            style={[styles.bookBtn, isDisabled && styles.bookBtnDisabled]}
+                            disabled={
+                                notAvail == 0 ||
+                                (hotelDetails?.status != 1) ||
+                                (isFullDayBlocked?.status == "Sold-Out") ||
+                                checkStatus?.soldOut == true
+                            }
+                            onPress={() => handleDailyBooking(item, 24, finalPrice)}
+                        >
+                            <Text style={styles.bookText}>Book</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         )
@@ -232,8 +234,8 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
     imageBox: {
-        width: 80,
-        height: 80,
+        width: 100,
+        height: 100,
         borderRadius: 10,
         overflow: 'hidden'
     },
@@ -253,13 +255,13 @@ const styles = StyleSheet.create({
         fontSize: 11,
         color: "#777",
         marginTop: 4,
-        flexWrap:'wrap',
-        maxWidth:'98%'
+        flexWrap: 'wrap',
+        maxWidth: '98%'
     },
     priceRow: {
         flexDirection: "row",
         alignItems: "center",
-        marginTop: 6,
+        marginVertical: 4
     },
     price: {
         fontSize: 14,
@@ -284,20 +286,19 @@ const styles = StyleSheet.create({
         color: "#16a34a",
         fontWeight: "600",
     },
-    button: {
-        justifyContent: 'center',
-        alignItems: 'cener'
-    },
     bookBtn: {
+        width: '80',
         backgroundColor: "#000",
-        paddingHorizontal: 18,
-        paddingVertical: 12,
         borderRadius: 8,
+        textAlign: 'center',
+        paddingHorizontal: 18,
+        paddingVertical: 8,
     },
     bookText: {
         color: "#fff",
         fontSize: 12,
         fontWeight: "600",
+        textAlign: 'center'
     },
     bookBtnDisabled: {
         backgroundColor: "#9CA3AF",

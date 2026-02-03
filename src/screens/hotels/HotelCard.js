@@ -33,7 +33,7 @@ export default function HotelCard({ navigation, item, getAverageRating, mergeAll
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                keyExtractor={(_, index) => index.toString()}
+                keyExtractor={(item, index) => item?.id ? String(item.id) : `idx-${index}`}
                 renderItem={({ item: img }) => {
                     const imageUrl = baseImgUrl + img?.image;
                     return (
@@ -106,7 +106,7 @@ export default function HotelCard({ navigation, item, getAverageRating, mergeAll
                                     const isDisabled = item?.status === "Sold-Out" || item?.price == 0;
                                     return (
                                         <TouchableOpacity
-                                            key={i}
+                                            key={`${item?.slot}-${i}`}
                                             disabled={isDisabled}
                                             style={[
                                                 styles.timeBtn,

@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Permission
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import Geolocation from '@react-native-community/geolocation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import services from "@api/services";
 import Icon from "react-native-vector-icons/Ionicons";
 import { POPULAR_CITIES, CITY_PRIORITY } from "@constants";
@@ -52,6 +53,8 @@ const CityCard = ({ size, setCoords }) => {
             return a.name.localeCompare(b.name);
         });
     }, [cities]);
+
+    // const filterCities = []
 
     const handleCityPress = (item) => {
         dispatch(setCity(item.name))
@@ -136,80 +139,73 @@ const CityCard = ({ size, setCoords }) => {
     };
 
     return (
-        <ScrollView
+        <FlatList
+            data={filterCities}
             horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 5 }}
-        >
-            <FlatList
-                data={filterCities}
-                horizontal
-                renderItem={({ item }) => {
-                    const img = `${mainUrl}${item.city_img}`;
-                    return (
-                        <TouchableOpacity style={styles.cityCard} onPress={() => handleCityPress(item)} key={item.id}>
-                            <Image
-                                source={{ uri: img }}
-                                style={[
-                                    styles.cityImage,
-                                    { width: size === 'sm' ? 40 : 72, height: size === 'sm' ? 40 : 72 }
-                                ]}
-                            />
+            renderItem={({ item }) => {
+                const img = `${mainUrl}${item.city_img}`;
+                return (
+                    <TouchableOpacity style={styles.cityCard} onPress={() => handleCityPress(item)} key={item.id}>
+                        <Image
+                            source={{ uri: img }}
+                            style={[
+                                styles.cityImage,
+                                { width: size === 'sm' ? 40 : 72, height: size === 'sm' ? 40 : 72 }
+                            ]}
+                        />
 
-                            <Text
-                                style={[
-                                    styles.cityName,
-                                    { fontSize: size == 'sm' ? 12 : 14 }
-                                ]}>
-                                {item?.name}
-                            </Text>
-                        </TouchableOpacity>
-                    )
-                }}
-                emptyComponent={<CitySkeleton size={size} />}
-                keyExtractor={(item, index) => index.toString()}
-                ListHeaderComponent={() => {
-                    return (
-                        <TouchableOpacity style={styles.cityCard} onPress={loadNearbyHotels}>
-                            <View
-                                style={[
-                                    styles.iconLocation,
-                                    { width: size === 'sm' ? 40 : 72, height: size === 'sm' ? 40 : 72 }
-                                ]}
-                            >
-                                <Icon name="navigate" size={size === 'sm' ? 20 : 24} color="#fff" />
-                            </View>
-
-                            <Text style={[
+                        <Text
+                            style={[
                                 styles.cityName,
                                 { fontSize: size == 'sm' ? 12 : 14 }
-                            ]}>Near By</Text>
-                        </TouchableOpacity>
-                    )
-                }}
-                ListFooterComponent={() => {
-                    return (
-                        <TouchableOpacity style={styles.cityCard} onPress={() => handleCityPress({ name: "", id: 0 })} >
-                            <Image
-                                source={{ uri: "https://rrooms.in/static/media/allCities.a56eb3673db4af99fbf5.png" }}
-                                style={[
-                                    styles.cityImage,
-                                    { width: size === 'sm' ? 40 : 72, height: size === 'sm' ? 40 : 72 }
-                                ]}
-                            />
-                            <Text
-                                style={[
-                                    styles.cityName,
-                                    { fontSize: size == 'sm' ? 12 : 14 }
-                                ]}>
-                                All
-                            </Text>
-                        </TouchableOpacity>
-                    )
-                }}
-            />
+                            ]}>
+                            {item?.name}
+                        </Text>
+                    </TouchableOpacity>
+                )
+            }}
+            keyExtractor={(item, index) => index.toString()}
+            ListEmptyComponent={<CitySkeleton size={size} />}
+            ListHeaderComponent={() => {
+                return (
+                    <TouchableOpacity style={styles.cityCard} onPress={loadNearbyHotels}>
+                        <View
+                            style={[
+                                styles.iconLocation,
+                                { width: size === 'sm' ? 40 : 72, height: size === 'sm' ? 40 : 72 }
+                            ]}
+                        >
+                            <Icon name="navigate" size={size === 'sm' ? 20 : 24} color="#fff" />
+                        </View>
 
-        </ScrollView>
+                        <Text style={[
+                            styles.cityName,
+                            { fontSize: size == 'sm' ? 12 : 14 }
+                        ]}>Near By</Text>
+                    </TouchableOpacity>
+                )
+            }}
+            ListFooterComponent={() => {
+                return (
+                    <TouchableOpacity style={styles.cityCard} onPress={() => handleCityPress({ name: "", id: 0 })} >
+                        <Image
+                            source={{ uri: "https://rrooms.in/static/media/allCities.a56eb3673db4af99fbf5.png" }}
+                            style={[
+                                styles.cityImage,
+                                { width: size === 'sm' ? 40 : 72, height: size === 'sm' ? 40 : 72 }
+                            ]}
+                        />
+                        <Text
+                            style={[
+                                styles.cityName,
+                                { fontSize: size == 'sm' ? 12 : 14 }
+                            ]}>
+                            All
+                        </Text>
+                    </TouchableOpacity>
+                )
+            }}
+        />
     );
 };
 

@@ -39,6 +39,7 @@ const BookHotelScreen = ({ route, navigation }) => {
   const [selectedHour, setSelectedHour] = useState(hotelData?.selectedCheckinTime)
   const [reservedSlot, setReservedSlot] = useState(hotelData?.slot)
   const [availableRooms, setAvailableRooms] = useState(hotelData?.avilableRoomCount);
+  const [statusData, setStatusData] = useState(null)
   const [checkinDate, setCheckinDate] = useState(null);
   const [checkoutDate, setCheckoutDate] = useState(null);
   const [isHourlyBooking, setIsHourlyBooking] = useState(false);
@@ -70,8 +71,8 @@ const BookHotelScreen = ({ route, navigation }) => {
     finalPayable: 0
   });
   const [bookingDetail, setBookingDetail] = useState("");
-
   const [loading, setLoading] = useState(false);
+  const [checkSoldOut, setCheckSoldOut] = useState(false)
 
 
   useEffect(() => {
@@ -190,63 +191,76 @@ const BookHotelScreen = ({ route, navigation }) => {
   }
 
   const checkRoomAvailabilityOnCheckIn = async (value) => {
-    setLoading(true);
-    setSelectedHour(value)
-    let payload = {
-      propertyId: hotelData?.propertyId,
-      propertyRoomsCategoryId: 1,
-      date: checkinDate,
-      bookingType: hotelData?.slot,
-      startTime: value,
-      duration: hotelData?.slot?.slice(0, 2)
-    }
-    const res = await services.checkRoomAvailabilityService(payload)
-    if (res.data.status === true) {
-      setAvailableRooms(res?.data?.data?.availableRooms)
-      if (res?.data?.data?.availableRooms == 0) {
-        showToast('error', `No room available`);
+    try {
+      setLoading(true);
+      setSelectedHour(value)
+      let payload = {
+        propertyId: hotelData?.propertyId,
+        propertyRoomsCategoryId: 1,
+        date: checkinDate,
+        bookingType: hotelData?.slot,
+        startTime: value,
+        duration: hotelData?.slot?.slice(0, 2)
       }
-      else {
-        showToast('message', `${res?.data?.data?.availableRooms} rooms available`);
+      const res = await services.checkRoomAvailabilityService(payload)
+      if (res.data.status === true) {
+        setAvailableRooms(res?.data?.data?.availableRooms)
+        setStatusData(res?.data?.soldOutStatus)
+        if (res?.data?.data?.availableRooms == 0) {
+          showToast('error', `No room available`);
+        }
+        // else {
+        //   showToast('message', `${res?.data?.data?.availableRooms} rooms available`);
+        // }
       }
-    }
-    setLoading(false);
 
-    return res?.data?.data
+      return res?.data?.data
+    }
+    catch (err) { console.log(err) }
+    finally {
+      setLoading(false);
+    }
+  }
+
+  const checkFullDayRoomAvaility = async () => {
+    if (!checkinDate || !checkoutDate) return;
+
+    try {
+      const payload = {
+        propertyId: hotelData?.propertyId,
+        propertyRoomsCategoryId: hotelData?.categoryId,
+        fromDate: checkinDate,
+        toDate: checkoutDate
+      }
+      const res = await services.checkRoomAvailabilityByRangeService(payload)
+      console.log('res', res?.data)
+      if (res.status == 200) {
+        setAvailableRooms(res?.data?.data[0]?.availableRooms)
+        setStatusData(res?.data?.soldOutStatus)
+        if (res?.data?.data[0]?.availableRooms == 0) {
+          showToast('error', `No room available`);
+        }
+      }
+    }
+    catch (err) { console.log(err) }
+    finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
-    if (Object.keys(hotelData).length && checkinDate && isHourlyBooking) {
-      checkRoomAvailabilityOnCheckIn(hotelData?.selectedCheckinTime)
+    if (isHourlyBooking) {
+      if (Object.keys(hotelData).length) {
+        checkRoomAvailabilityOnCheckIn(hotelData?.selectedCheckinTime)
+      }
     }
   }, [hotelData, checkinDate])
 
-  const checkFullDayRoomAvaility = async () => {
-    const payload = {
-      propertyId: hotelData?.propertyId,
-      propertyRoomsCategoryId: hotelData?.categoryId,
-      fromDate: checkinDate,
-      toDate: checkoutDate
-    }
-    const res = await services.checkRoomAvailabilityByRangeService(payload)
-    if (res.status == 200) {
-      setAvailableRooms(res?.data?.data[0]?.availableRooms)
-      if (res?.data?.data[0]?.availableRooms == 0) {
-        showToast('error', `No room available`);
-      }
-      setLoading(false);
-      // else {
-      //   showToast('message', `${res?.data?.data[0]?.availableRooms} rooms available`);
-      // }
-    }
-  }
-
   useEffect(() => {
-    if (Object.keys(hotelData)?.length && checkinDate && checkoutDate) {
-      setLoading(true);
+    if (Object.keys(hotelData)?.length > 1 && isHourlyBooking == false) {
       checkFullDayRoomAvaility()
     }
-  }, [checkinDate, checkoutDate, hotelData])
+  }, [checkoutDate, hotelData])
 
   const createBooking = async () => {
     setLoading(true);
@@ -306,7 +320,12 @@ const BookHotelScreen = ({ route, navigation }) => {
       if (res.status === 200) {
         setBookingDetail(res?.data?.data);
         navigation.navigate('Payment', {
-          BookingId: res?.data?.data?.id
+          BookingId: res?.data?.data?.id,
+          amount: priceSummary?.totalPayable,
+          bookingType: isHourlyBooking ? 'Hourly' : 'FullDay',
+          partialPayment: hotelData?.partialPayment,
+          payAtHotel: hotelData?.payAtHotel,
+          bookingDetail: bookingDetail
         });
       }
       setLoading(false);
@@ -315,6 +334,56 @@ const BookHotelScreen = ({ route, navigation }) => {
     catch (err) { console.log(err) }
   }
 
+  useEffect(() => {
+    if (!statusData || !checkinDate || Object.keys(hotelData || {}).length < 1) {
+      setCheckSoldOut(false);
+      return;
+    }
+    if (isHourlyBooking) {
+      const isSoldOut =
+        statusData?.[checkinDate]?.some(
+          (item) =>
+            item?.slot === hotelData?.slot &&
+            item?.status === "Sold-Out"
+        ) || false;
+
+      setCheckSoldOut(isSoldOut);
+      return;
+    }
+    if (!checkoutDate) {
+      setCheckSoldOut(false);
+      return;
+    }
+
+    const start = new Date(checkinDate);
+    const end = new Date(checkoutDate);
+
+    let isSoldOut = false;
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().slice(0, 10);
+
+      const daySlots = statusData[key];
+      if (!Array.isArray(daySlots)) continue;
+
+      const hasFullDaySoldOut = daySlots.some(
+        (x) => x?.slot === "FullDay" && x?.status === "Sold-Out"
+      );
+
+      if (hasFullDaySoldOut) {
+        isSoldOut = true;
+        break;
+      }
+    }
+
+    setCheckSoldOut(isSoldOut);
+  }, [statusData, checkinDate, checkoutDate, isHourlyBooking, hotelData?.slot]);
+
+
+  console.log('statusData', statusData)
+  console.log('checkSoldOut', checkSoldOut)
+
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -322,15 +391,7 @@ const BookHotelScreen = ({ route, navigation }) => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
     >
       {loading && (
-        <View style={{
-          height: '100%',
-          width: '100%',
-          position: 'absolute',
-          zIndex: 10,
-          backgroundColor: '#00000033',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
+        <View style={commonStyles.loadingView}>
           <ActivityIndicator size={'large'} color={'#000'} />
         </View>
       )}
@@ -597,9 +658,13 @@ const BookHotelScreen = ({ route, navigation }) => {
       </View>
       <View style={styles.bottomBar}>
         <TouchableOpacity
-          style={[commonStyles.btn, commonStyles.btnSecondary, availableRooms === 0 && commonStyles.btnDisabled]}
+          style={[
+            commonStyles.btn,
+            commonStyles.btnSecondary,
+            (availableRooms === 0 || checkSoldOut) && commonStyles.btnDisabled
+          ]}
           onPress={createBooking}
-          disabled={availableRooms === 0}>
+          disabled={availableRooms === 0 || checkSoldOut}>
           <Text style={commonStyles.btnText}>Confirm your Booking</Text>
         </TouchableOpacity>
       </View>

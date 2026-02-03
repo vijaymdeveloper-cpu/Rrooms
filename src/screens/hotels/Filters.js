@@ -5,7 +5,8 @@ import {
   Modal,
   TouchableOpacity,
   StyleSheet,
-  Dimensions
+  Dimensions,
+  Pressable
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { TRAVEL_OPTIONS } from '@constants'
@@ -66,8 +67,9 @@ export default function Filters({
         visible={show}
         animationType="slide"
         transparent
+        statusBarTranslucent
       >
-        <View style={styles.overlay}>
+        <Pressable style={styles.overlay}  onPress={() => setShowFilter(false)}>
           <View style={styles.sheet}>
 
             <View style={styles.header}>
@@ -153,7 +155,7 @@ export default function Filters({
             </View>
 
           </View>
-        </View>
+        </Pressable>
 
       </Modal>
 

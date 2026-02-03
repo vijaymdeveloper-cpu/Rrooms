@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, Alert, StatusBar } from "react-native";
-import LinearGradient from "react-native-linear-gradient";
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking, Alert, RefreshControl } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { baseImgUrl, baseUrl } from '@api/client';
 import { fetchUserData, clearAuthState, resetAuth } from '@store/slices/authSlice';
 import { isValidImage } from '@utils';
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { commonStyles } from '@assets/styles/commonStyles';
 
 const MENU_ITEMS = [
   { title: "Wallet Balance", icon: "wallet-outline", link: 'Wallet', authOnly: true },
@@ -23,6 +21,7 @@ const MyProfileScreen = ({ navigation }) => {
 
   const [userData, setUserData] = useState({})
   const [imgFile, setImgFile] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const dispatch = useDispatch();
   const { access_token, userDetail } = useSelector((state) => state.auth)
@@ -30,7 +29,7 @@ const MyProfileScreen = ({ navigation }) => {
   useEffect(() => {
     setUserData(userDetail)
     setImgFile(userDetail?.profileImage)
-  }, [])
+  }, [userDetail])
 
   const filteredMenuItems = MENU_ITEMS.filter(item => {
     if (item.authOnly && !userDetail?.id) return false;
@@ -63,11 +62,29 @@ const MyProfileScreen = ({ navigation }) => {
     );
   };
 
+  useEffect(() => {
+    dispatch(fetchUserData(userDetail?.id))
+  }, [])
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await dispatch(fetchUserData(userDetail?.id))
+    setRefreshing(false);
+  };
+
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#FF8C00" barStyle="light-content" />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#1e90ff"]}
+            tintColor="#1e90ff"
+          />
+        }>
 
         <View style={styles.profileSection}>
           <View style={styles.profileWrapper}>
@@ -86,7 +103,7 @@ const MyProfileScreen = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.editBtn}
-            onPress={() => navigation.navigate('EditAccount', { userData, baseImgUrl, access_token, fetchUserData })}>
+            onPress={() => navigation.navigate('EditAccount', { userData, baseImgUrl, access_token })}>
             <Text style={styles.editText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>

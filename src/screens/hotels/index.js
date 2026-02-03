@@ -12,6 +12,7 @@ import Filters from './Filters'
 export default function HotelsScreen({ navigation }) {
 
   const [showFilter, setShowFilter] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const {
     loading,
@@ -28,6 +29,25 @@ export default function HotelsScreen({ navigation }) {
     filterValues,
     dispatch
   } = useHotelsController();
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    const clearHandler = async () => {
+      dispatch(
+        setFilter({
+          propertyCategoryFilter: [],
+          roomCategoryFilter: [],
+          travellerChoice: [],
+          localityFilter: [],
+          latlongFilter: { lat: null, long: null },
+        })
+      );
+      dispatch(setSearch(""));
+      dispatch(fetchProperties('?order_direction=asc'))
+    };
+    await clearHandler()
+    setRefreshing(false);
+  };
 
   return (
     <View style={[commonStyles.screenWrapper, commonStyles.mb_4]}>
@@ -56,7 +76,7 @@ export default function HotelsScreen({ navigation }) {
         ) : (
           <FlatList
             data={properties}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item, idx) => idx.toString()}
             renderItem={({ item }) => (
               <HotelCard
                 item={item}
@@ -77,6 +97,8 @@ export default function HotelsScreen({ navigation }) {
             }
             // contentContainerStyle={{ paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
           />
         )
       }
@@ -109,7 +131,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: 'absolute',
-    right: 0
+    right: 0,
+    zIndex: 10
   },
 })
 

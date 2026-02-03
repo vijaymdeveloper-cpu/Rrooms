@@ -15,10 +15,13 @@ import { commonStyles } from "@assets/styles/commonStyles";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { launchImageLibrary } from "react-native-image-picker";
 import { showToast } from '@utils/Toaster';
+import { fetchUserData } from '@store/slices/authSlice';
+import { useDispatch } from "react-redux";
 
 const EditAccountScreen = ({ navigation, route }) => {
 
-  const { access_token, userData, baseImgUrl, fetchUserData } = route.params || {};
+  const dispatch = useDispatch();
+  const { access_token, userData, baseImgUrl } = route.params || {};
 
   const [sendImg, setSendImg] = useState(null);
 
@@ -62,6 +65,7 @@ const EditAccountScreen = ({ navigation, route }) => {
   const saveEditHandler = async (payload) => {
     try {
       const formData = new FormData();
+      formData.append("profileImage", sendImg);
       formData.append("name", payload.name ?? "");
       formData.append("email", payload.email ?? "");
       formData.append("company", payload.company ?? "");
@@ -81,11 +85,13 @@ const EditAccountScreen = ({ navigation, route }) => {
       const result = await response.json();
       if (result.status) {
         showToast('message', result.message);
-        fetchUserData()
+        dispatch(fetchUserData(userData?.id))
         navigation.goBack()
       }
     } catch (err) { console.log(err) }
   };
+
+  console.log('userData', userData)
 
 
   return (
@@ -110,8 +116,8 @@ const EditAccountScreen = ({ navigation, route }) => {
             source={
               sendImg
                 ? { uri: sendImg.uri }
-                : userData?.sendImg
-                  ? { uri: `${baseImgUrl}${userData?.sendImg}` }
+                : userData?.profileImage
+                  ? { uri: `${baseImgUrl}${userData?.profileImage}` }
                   : require("@assets/images/img-profile.png")
             }
             style={styles.profileImage}

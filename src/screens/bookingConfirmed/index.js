@@ -18,14 +18,15 @@ import { baseImgUrl } from '@api/client';
 
 export default function BookingConfirmedScreen({ route, navigation }) {
 
-  const { BookingId } = route?.params
+  const { bookingId } = route?.params
+
 
   const [booking, setBooking] = useState({})
   const { userDetail } = useSelector((state) => state.auth)
 
   const fetchLatestBooking = async () => {
     try {
-      const res = await services.getBookingService(BookingId)
+      const res = await services.getBookingService(bookingId)
       if (res?.data?.status) {
 
         setBooking(res?.data?.data)
@@ -64,10 +65,10 @@ export default function BookingConfirmedScreen({ route, navigation }) {
   }
 
   useEffect(() => {
-    if (BookingId) {
+    if (bookingId) {
       fetchLatestBooking()
     }
-  }, [BookingId])
+  }, [bookingId])
 
   const openInMaps = () => {
     const lat = booking?.PropertyMaster?.latitude;
@@ -94,10 +95,11 @@ export default function BookingConfirmedScreen({ route, navigation }) {
 
   const handlePayment = () => {
     navigation.navigate('Payment', {
-      BookingId: BookingId,
+      BookingId: bookingId,
       isPayAtHotelEnabled: false
     });
   }
+
 
   return (
     <View style={styles.container}>

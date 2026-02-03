@@ -19,9 +19,10 @@ const initialState = {
 export const fetchUserData = createAsyncThunk(
     "auth/fetchUserData",
     async (userId, { rejectWithValue }) => {
+        console.log('userId', userId)
         try {
             const response = await services.getCustomerProfileService(userId);
-            console.log('response', response)
+            console.log('response FX', response)
             return response?.data?.data;
         } catch (error) {
             return rejectWithValue(error.response?.data || "Something went wrong");
