@@ -100,6 +100,8 @@ const SlotBookingCard = ({
         };
     }, [hotelDetails, checkToday]);
 
+    // console.log('slotWiseData', slotWiseData);
+
 
     function getHoursArray(checkIn, checkOut) {
         const startTime = checkIn && checkIn.trim() !== '' ? checkIn : '00:00';

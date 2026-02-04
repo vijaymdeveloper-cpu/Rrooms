@@ -24,7 +24,7 @@ const CityCard = ({ size, setCoords }) => {
         try {
             const res = await services.allCitiesService();
             if (res?.data?.status) {
-                setCities(res?.data?.data || []);
+                setCities(res?.data?.data?.filter((item)=> item?.popular != '0') || []);
             }
         } catch (error) {
             console.log("Fetch cities error:", error);
@@ -36,11 +36,8 @@ const CityCard = ({ size, setCoords }) => {
     }, []);
 
     const filterCities = useMemo(() => {
-        const filtered = cities?.filter((item) =>
-            POPULAR_CITIES?.includes(item.name)
-        );
 
-        return filtered.sort((a, b) => {
+        return cities.sort((a, b) => {
             const indexA = CITY_PRIORITY.indexOf(a.name);
             const indexB = CITY_PRIORITY.indexOf(b.name);
 

@@ -18,8 +18,6 @@ export default function ReferAndEarnScreen({ navigation }) {
 
   const { userDetail } = useSelector((state) => state.auth)
 
-  console.log('userDetail referralCode', userDetail)
-
   const referralCode = userDetail?.referralCode;
 
   const onShareReferral = async () => {

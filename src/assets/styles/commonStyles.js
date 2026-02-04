@@ -187,6 +187,9 @@ export const commonStyles = StyleSheet.create({
     text_7: {
         fontSize: 12
     },
+    textCenter: {
+        textAlign: 'center'
+    },
     error: {
         color: '#f00',
     },

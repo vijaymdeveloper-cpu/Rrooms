@@ -39,9 +39,9 @@ const Header = ({ showBack = false, profileIcon = true }) => {
 
             {
                 profileIcon &&
-                <TouchableOpacity 
-                activeOpacity={0.7}
-                onPress={() => navigation.navigate(ROUTES.ACCOUNT)}>
+                <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => navigation?.navigate('Tabs', { screen: ROUTES.ACCOUNT })}>
                     <Image
                         source={
                             isValidImage(userDetail?.profileImage)

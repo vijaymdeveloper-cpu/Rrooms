@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const hotelFinanceURL = "https://staging-api.rrooms.in/";
 
-export const mainUrl = "https://rrooms.in/rrooms/";
-// export const mainUrl = "https://rrooms.co.in/rrooms/";
+// export const mainUrl = "https://rrooms.in/rrooms/";
+export const mainUrl = "https://rrooms.co.in/rrooms/";
 // export const mainUrl = "http://localhost:4000/";
 
 const api = axios.create({

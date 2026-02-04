@@ -127,7 +127,6 @@ export default function OtpScreen({ route, navigation }) {
         }
     };
 
-    console.log('otp', otp?.length)
 
     return (
         <LinearGradient

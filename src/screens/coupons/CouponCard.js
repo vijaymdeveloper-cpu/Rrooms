@@ -13,7 +13,7 @@ import { commonStyles } from "@assets/styles/commonStyles";
 import { saveCouponDiscount } from '@store/slices/authSlice';
 import { showToast } from '@utils/Toaster';
 
-const CouponCard = ({ item, extraDetails = true, propertyId, navigation }) => {
+const CouponCard = ({ item, extraDetails = true, propertyId, userDetail, navigation }) => {
 
   const dispatch = useDispatch();
 
@@ -30,12 +30,15 @@ const CouponCard = ({ item, extraDetails = true, propertyId, navigation }) => {
 
   const onApply = async (item) => {
     try {
-      const res = await services.applyCouponService(propertyId, item?.code)
-      console.log('res', res)
+      const res = await services.applyCouponService(propertyId, userDetail?.id, item?.code)
+      console.log('coupon', res)
       if (res?.data?.status) {
         dispatch(saveCouponDiscount(res?.data?.data?.amount))
         showToast('message', 'Coupon applied successfully!');
         navigation.goBack()
+      }
+      else if (res?.data?.status == false) {
+        showToast('error', res?.data?.msg);
       }
     }
     catch (err) { console.log(err) }

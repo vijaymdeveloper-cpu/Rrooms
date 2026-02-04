@@ -121,11 +121,10 @@ const BookingScreen = ({ navigation }) => {
   const handlePayment = (id) => {
     navigation.navigate('Payment', {
       BookingId: id,
-      isPayAtHotelEnabled: false
+      isPayAtHotelEnabled: false,
+      redirectTo: 'Bookings'
     });
   }
-
-  console.log('filtered', filtered)
 
   return (
     <View style={commonStyles.screenWrapper}>
@@ -218,7 +217,6 @@ const BookingScreen = ({ navigation }) => {
                       <View style={styles.paymentBox}>
                         <InfoRow label="Total Amount" value={`₹ ${item?.bookingAmout}`} bold />
                         <Text style={[styles.paidText, { color: PAYMENT_STATUS_COLOR[item?.PaymentStatus] }]}>
-                          {/* {PAYMENT_STATUS[item?.PaymentStatus]} */}
                           {(item?.PaymentStatus == 1 && item?.paymentMode == 1) && 'Paid'}
                           {(item?.PaymentStatus == 0 && item?.paymentMode == 1) && 'Partial Paid'}
                           {(item?.PaymentStatus == 0 && item?.paymentMode == 0) && 'Pay at Hotel'}

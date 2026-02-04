@@ -8,7 +8,7 @@ import CouponCard from './CouponCard';
 const CouponScreen = ({ route, navigation }) => {
 
     const propertyId = route?.params?.propertyId
-    const { coupons = [] } = useSelector((state) => state.auth);
+    const { userDetail, coupons = [] } = useSelector((state) => state.auth);
 
     return (
         <View style={commonStyles.screenWrapper}>
@@ -22,6 +22,7 @@ const CouponScreen = ({ route, navigation }) => {
                             key={item?.code}
                             item={item}
                             propertyId={propertyId}
+                            userDetail={userDetail}
                             navigation={navigation}
                         />
                     ))}

@@ -34,6 +34,7 @@ export default function HotelDetailsScreen({ route, navigation }) {
     const { bookingType } = route?.params || {};
     const { hotelId, hotelName, img } = route?.params?.hotel || {};
     const [refreshing, setRefreshing] = useState(false);
+    const [activeGalleryTab, setActiveGalleryTab] = useState('')
 
     const {
         fetchPropertyDetail,
@@ -94,8 +95,21 @@ export default function HotelDetailsScreen({ route, navigation }) {
     const onRefresh = async () => {
         setRefreshing(true);
         await fetchPropertyDetail(hotelId);
-        setRefreshing(false);
+        setRefreshing(false)
     };
+
+    const allowedTitles = ["Facade", "Lobby", "DReception", "Room"];
+
+    const uniqueImages = Object.values(
+        hotelDetails?.PropertyImage
+            ?.filter(item => allowedTitles.includes(item.title))
+            ?.reduce((acc, item) => {
+                if (!acc[item.title]) {
+                    acc[item.title] = item; // first image of each title
+                }
+                return acc;
+            }, {}) || {}
+    );
 
     return (
         <ScrollView
@@ -153,19 +167,24 @@ export default function HotelDetailsScreen({ route, navigation }) {
                         </View>
                         <View style={[commonStyles.rowCenter, { marginTop: -30 }]}>
                             {
-                                hotelDetails?.PropertyImage?.slice(0, 4)?.map((item, i) => {
+                                uniqueImages?.slice(0, 4)?.map((item, i) => {
                                     return (
-                                        <View style={styles.thumbBox} key={item?.id}>
+                                        <TouchableOpacity
+                                            style={styles.thumbBox}
+                                            key={item?.id}
+                                            onPress={() => {
+                                                setShowGallery(true);
+                                                setActiveGalleryTab(i == 3 ? 'All' : item?.title)
+                                            }}>
                                             <Image source={{ uri: baseImgUrl + item.image }} style={styles.thumbImg} />
                                             {
                                                 i == 3 &&
-                                                <TouchableOpacity
-                                                    style={[styles.thumbText, commonStyles.allCenter]}
-                                                    onPress={() => setShowGallery(true)}>
+                                                <View
+                                                    style={[styles.thumbText, commonStyles.allCenter]}>
                                                     <Text style={commonStyles.textWhite}>View All</Text>
-                                                </TouchableOpacity>
+                                                </View>
                                             }
-                                        </View>
+                                        </TouchableOpacity>
                                     )
                                 })
                             }
@@ -173,6 +192,7 @@ export default function HotelDetailsScreen({ route, navigation }) {
                         <HotelGalleryModal
                             visible={showGallery}
                             images={hotelDetails?.PropertyImage}
+                            activeGalleryTab={activeGalleryTab}
                             onClose={() => setShowGallery(false)}
                         />
 
@@ -310,6 +330,7 @@ export default function HotelDetailsScreen({ route, navigation }) {
                                     hotelId={hotelId}
                                     baseImgUrl={baseImgUrl}
                                     onViewAll={() => navigation.navigate("HotelDetails")}
+                                    navigation={navigation}
                                 />
                             </View>
 

@@ -4,8 +4,9 @@ import services from "@api/services";
 import Icon from "react-native-vector-icons/Ionicons";
 import moment from "moment";
 import HotelCardSkeleton from '@components/skeletons/HotelCardSkeleton'
+import { StackActions } from "@react-navigation/native"
 
-const NearByHotels = ({ hotelId, baseImgUrl, commonStyles }) => {
+const NearByHotels = ({ hotelId, baseImgUrl, commonStyles, navigation }) => {
 
     const [nearestProperty, setNearestProperty] = useState([]);
     const dummyImage = require('@assets/images/hotelPlaceholder.png');
@@ -23,6 +24,19 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles }) => {
     useEffect(() => {
         fetchNearestProperty(hotelId)
     }, [hotelId])
+
+    const handleHotelPress = (item) => {
+        navigation.dispatch(
+            StackActions.push("HotelDetails", {
+                hotel: {
+                    hotelId: item.id,
+                    hotelName: item?.name,
+                    img: baseImgUrl + item?.PropertyImages?.[0]?.image,
+                },
+                bookingType: "",
+            })
+        );
+    };
 
     return (
         <View style={commonStyles.mt_5}>
@@ -57,7 +71,7 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles }) => {
                             mPrice = Math.min(...xPrice);
                         });
                         return (
-                            <View key={index} style={styles.card}>
+                            <TouchableOpacity key={index} style={styles.card} onPress={() => handleHotelPress(item)}>
                                 {item?.allowHourly === 1 && (
                                     <View style={{
                                         position: 'absolute',
@@ -106,7 +120,7 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles }) => {
                                         </Text>
                                     </View>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         )
                     }) : <HotelCardSkeleton />
                 }

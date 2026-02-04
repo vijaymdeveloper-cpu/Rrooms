@@ -47,9 +47,9 @@ const EditAccountScreen = ({ navigation, route }) => {
       },
       (response) => {
         if (response.didCancel) {
-          console.log("User cancelled image picker");
+          // console.log("User cancelled image picker");
         } else if (response.errorCode) {
-          console.log("ImagePicker Error: ", response.errorMessage);
+          // console.log("ImagePicker Error: ", response.errorMessage);
         } else {
           const asset = response.assets[0];
           setSendImg({
@@ -91,7 +91,6 @@ const EditAccountScreen = ({ navigation, route }) => {
     } catch (err) { console.log(err) }
   };
 
-  console.log('userData', userData)
 
 
   return (

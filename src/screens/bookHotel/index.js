@@ -177,10 +177,13 @@ const BookHotelScreen = ({ route, navigation }) => {
   const onApplyPress = async () => {
     if (couponCode != "") {
       setLoading(true);
-      const res = await services.applyCouponService(hotelData?.propertyId, couponCode)
+      const res = await services.applyCouponService(hotelData?.propertyId, userDetail?.id, couponCode)
       if (res?.data?.status) {
         dispatch(saveCouponDiscount(res?.data?.data?.amount))
         showToast('message', 'Coupon applied successfully!');
+      }
+      else if (res?.data?.status == false) {
+        showToast('error', res?.data?.msg);
       }
       setLoading(false);
 
@@ -188,6 +191,10 @@ const BookHotelScreen = ({ route, navigation }) => {
     else {
       Alert.alert('Please Enter Coupon Code')
     }
+  }
+
+  const onRemoveCoupon = () => {
+    dispatch(saveCouponDiscount(0))
   }
 
   const checkRoomAvailabilityOnCheckIn = async (value) => {
@@ -236,7 +243,7 @@ const BookHotelScreen = ({ route, navigation }) => {
       console.log('res', res?.data)
       if (res.status == 200) {
         setAvailableRooms(res?.data?.data[0]?.availableRooms)
-        setStatusData(res?.data?.soldOutStatus)
+        setStatusData(res?.data?.soldOutStatus);
         if (res?.data?.data[0]?.availableRooms == 0) {
           showToast('error', `No room available`);
         }
@@ -302,7 +309,7 @@ const BookHotelScreen = ({ route, navigation }) => {
         payload.bookingHours = `${bookingHours.split(" to ")[0]} to 23:59`;
       }
       const checkInMoment = moment(
-        `${moment(checkoutDate).format("YYYY-MM-DD")} ${bookingHours.split(" to ")[0]}`,
+        `${moment(checkinDate).format("YYYY-MM-DD")} ${bookingHours.split(" to ")[0]}`,
         "YYYY-MM-DD HH:mm"
       );
       const checkOutMoment = checkInMoment.clone().add(slotHours, "hours");
@@ -316,7 +323,7 @@ const BookHotelScreen = ({ route, navigation }) => {
           return;
         }
       }
-      const res = await services.bookHotelService(payload)
+      const res = await services.bookHotelService(payload);
       if (res.status === 200) {
         setBookingDetail(res?.data?.data);
         navigation.navigate('Payment', {
@@ -328,10 +335,12 @@ const BookHotelScreen = ({ route, navigation }) => {
           bookingDetail: bookingDetail
         });
       }
-      setLoading(false);
 
     }
     catch (err) { console.log(err) }
+    finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -357,32 +366,21 @@ const BookHotelScreen = ({ route, navigation }) => {
 
     const start = new Date(checkinDate);
     const end = new Date(checkoutDate);
-
     let isSoldOut = false;
-
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
       const key = d.toISOString().slice(0, 10);
-
       const daySlots = statusData[key];
       if (!Array.isArray(daySlots)) continue;
-
       const hasFullDaySoldOut = daySlots.some(
-        (x) => x?.slot === "FullDay" && x?.status === "Sold-Out"
+        x => x.slot === "FullDay" && x.status === "Sold-Out"
       );
-
       if (hasFullDaySoldOut) {
         isSoldOut = true;
         break;
       }
     }
-
     setCheckSoldOut(isSoldOut);
   }, [statusData, checkinDate, checkoutDate, isHourlyBooking, hotelData?.slot]);
-
-
-  console.log('statusData', statusData)
-  console.log('checkSoldOut', checkSoldOut)
-
 
   return (
     <KeyboardAvoidingView
@@ -560,6 +558,15 @@ const BookHotelScreen = ({ route, navigation }) => {
               ) : null
             }
 
+            {
+              (!isHourlyBooking && couponDiscount > 0) ?
+                <View style={styles.card}>
+                  <TouchableOpacity onPress={onRemoveCoupon}>
+                    <Text style={{ color: '#f00', textAlign: 'center' }}>Remove Coupon</Text>
+                  </TouchableOpacity>
+                </View> : null
+            }
+
             <View style={styles.card}>
               <TouchableOpacity
                 style={[commonStyles.rowBetween, commonStyles.itemsCenter]}
@@ -657,6 +664,17 @@ const BookHotelScreen = ({ route, navigation }) => {
         </ScrollView>
       </View>
       <View style={styles.bottomBar}>
+        {
+          (checkSoldOut || availableRooms === 0) &&
+          <Text
+            style={[
+              commonStyles.textCenter,
+              commonStyles.mb_2,
+              { color: 'rgb(226, 10, 10)', paddingHorizontal: 15 }
+            ]}>
+            Room not available on selected date range. Please choose another date
+          </Text>
+        }
         <TouchableOpacity
           style={[
             commonStyles.btn,
