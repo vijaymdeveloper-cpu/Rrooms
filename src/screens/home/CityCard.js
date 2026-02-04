@@ -8,7 +8,7 @@ import services from "@api/services";
 import Icon from "react-native-vector-icons/Ionicons";
 import { POPULAR_CITIES, CITY_PRIORITY } from "@constants";
 import { setCity, setSearch, setFilter } from '@store/slices/propertySlice';
-import { mainUrl } from '@api/client';
+import { finalBaseUrl } from '@api/client';
 import CitySkeleton from '@components/skeletons/CitySkeleton';
 
 
@@ -143,7 +143,7 @@ const CityCard = ({ size, setCoords }) => {
             data={filterCities}
             horizontal
             renderItem={({ item }) => {
-                const img = `${mainUrl}${item.city_img}`;
+                const img = `${finalBaseUrl}${item.city_img}`;
                 return (
                     <TouchableOpacity style={styles.cityCard} onPress={() => handleCityPress(item)} key={item.id}>
                         <Image

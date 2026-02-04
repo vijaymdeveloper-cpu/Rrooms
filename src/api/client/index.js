@@ -1,20 +1,20 @@
 import axios from "axios";
 
-export const hotelFinanceURL = "https://staging-api.rrooms.in/";
+ const stagingUrl = "https://rrooms.co.in/rrooms/";
 
-export const mainUrl = "https://rrooms.in/rrooms/";
-// export const mainUrl = "https://rrooms.co.in/rrooms/";
-// export const mainUrl = "http://localhost:4000/";
+ const prodUrl = "https://rrooms.in/rrooms/";
+
+ export const finalBaseUrl = prodUrl
+
 
 const api = axios.create({
-  baseURL: `${mainUrl}api/`,
-  // baseURL: `${hotelFinanceURL}api/`,
+  // baseURL: `${prodUrl}api/`,
+  baseURL: `${finalBaseUrl}api/`,
 });
 export default api;
 
-export const baseUrl = `${mainUrl}api/`;
-// export const baseImgUrl = `${mainUrl}images/`;
-export const baseImgUrl = `${mainUrl}uploads/`;
+export const baseUrl = `${finalBaseUrl}api/`; // need to change according to production and staging
+export const baseImgUrl = `${finalBaseUrl}uploads/`;
 
 export const apiKey = "AIzaSyA74KcvlNTTWtDOekk9RlHbuUneSZV7UJw";
 export const authDomain = "rrooms-4acba.firebaseapp.com";

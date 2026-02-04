@@ -97,6 +97,17 @@ export default function HotelDetailsScreen({ route, navigation }) {
         setRefreshing(false);
     };
 
+      const handleHotelPress = (hotel) => {
+            navigation.navigate("HotelDetails", {
+                hotel: {
+                    hotelId: hotel.id,
+                    hotelName: hotel?.name,
+                    img: baseImgUrl + hotel?.PropertyImages[0]?.image
+                },
+                bookingType: "Full_Day_Plan"
+            })
+        }
+
     return (
         <ScrollView
             showsVerticalScrollIndicator={false}
@@ -310,6 +321,7 @@ export default function HotelDetailsScreen({ route, navigation }) {
                                     hotelId={hotelId}
                                     baseImgUrl={baseImgUrl}
                                     onViewAll={() => navigation.navigate("HotelDetails")}
+                                    onPolularHotelPress={handleHotelPress}
                                 />
                             </View>
 

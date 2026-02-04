@@ -5,7 +5,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import moment from "moment";
 import HotelCardSkeleton from '@components/skeletons/HotelCardSkeleton'
 
-const NearByHotels = ({ hotelId, baseImgUrl, commonStyles }) => {
+const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,onPolularHotelPress }) => {
 
     const [nearestProperty, setNearestProperty] = useState([]);
     const dummyImage = require('@assets/images/hotelPlaceholder.png');
@@ -57,7 +57,11 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles }) => {
                             mPrice = Math.min(...xPrice);
                         });
                         return (
-                            <View key={index} style={styles.card}>
+                            <TouchableOpacity 
+                            onPress={() => onPolularHotelPress(item)} 
+
+                            key={index} 
+                            style={styles.card}>
                                 {item?.allowHourly === 1 && (
                                     <View style={{
                                         position: 'absolute',
@@ -106,7 +110,7 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles }) => {
                                         </Text>
                                     </View>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         )
                     }) : <HotelCardSkeleton />
                 }
