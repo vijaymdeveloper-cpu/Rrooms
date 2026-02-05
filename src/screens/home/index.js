@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   slotSubtitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: "#fff",
     lineHeight: 20,

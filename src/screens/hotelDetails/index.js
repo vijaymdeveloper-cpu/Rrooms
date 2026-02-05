@@ -105,7 +105,7 @@ export default function HotelDetailsScreen({ route, navigation }) {
             ?.filter(item => allowedTitles.includes(item.title))
             ?.reduce((acc, item) => {
                 if (!acc[item.title]) {
-                    acc[item.title] = item; // first image of each title
+                    acc[item.title] = item;
                 }
                 return acc;
             }, {}) || {}
@@ -413,14 +413,14 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#16A34A",
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
-        marginRight: 8
+        borderRadius: 10,
+        paddingHorizontal: 6,
+        paddingVertical: 6,
+        marginRight: 6
     },
     featureText: {
         color: "#fff",
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: "700"
     },
     content: {

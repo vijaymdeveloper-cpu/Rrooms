@@ -166,18 +166,11 @@ const FulldayBookingCard = ({
 
         let notAvail = availRooms?.find((data) => data?.propertyRoomsCategoryId == item?.categoryId)?.availableRooms
 
-
-
         const isDisabled =
             notAvail === 0 ||
             hotelDetails?.status !== 1 ||
             isFullDayBlocked ||
             checkStatus?.soldOut === true;
-
-
-
-        // console.log('isFullDayBlocked', isFullDayBlocked)
-        // console.log('checkStatus', checkStatus)
 
         return (
             <View style={styles.card}>
@@ -203,13 +196,9 @@ const FulldayBookingCard = ({
                         {finalPrice && (
                             <Text style={styles.oldPrice}>₹{`${Math.round(reverseApplyTax(finalPrice))}`}</Text>
                         )}
-                        <View style={styles.saveBadge}>
-                            <Text style={styles.saveText}>
-                                20% OFF
-                            </Text>
-                        </View>
+
                     </View>
-                    <View style={{ marginTop: 3 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
                         <TouchableOpacity
                             style={[styles.bookBtn, isDisabled && styles.bookBtnDisabled]}
                             disabled={
@@ -222,6 +211,11 @@ const FulldayBookingCard = ({
                         >
                             <Text style={styles.bookText}>Book</Text>
                         </TouchableOpacity>
+                        <View style={styles.saveBadge}>
+                            <Text style={styles.saveText}>
+                                20% OFF
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </View>

@@ -57,6 +57,7 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles, navigation }) => {
                         let xPrice = []
                         let mPrice = 0
                         item?.Rooms.forEach((items) => {
+                            if (items?.fromDate || items?.toDate) return
                             const fromDate = moment(items?.fromDate);
                             const toDate = moment(items?.toDate);
                             const isTodayInRange =

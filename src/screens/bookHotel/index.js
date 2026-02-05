@@ -240,7 +240,6 @@ const BookHotelScreen = ({ route, navigation }) => {
         toDate: checkoutDate
       }
       const res = await services.checkRoomAvailabilityByRangeService(payload)
-      console.log('res', res?.data)
       if (res.status == 200) {
         setAvailableRooms(res?.data?.data[0]?.availableRooms)
         setStatusData(res?.data?.soldOutStatus);
@@ -382,6 +381,7 @@ const BookHotelScreen = ({ route, navigation }) => {
     setCheckSoldOut(isSoldOut);
   }, [statusData, checkinDate, checkoutDate, isHourlyBooking, hotelData?.slot]);
 
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -512,6 +512,10 @@ const BookHotelScreen = ({ route, navigation }) => {
               {
                 couponDiscount > 0 ? <PriceRow label="Coupon Discount" value={formatINR(priceSummary?.couponAmount)} /> : null
               }
+              {
+                priceSummary?.breakfastAmount > 0 ? <PriceRow label="Meal Plan" value={formatINR(priceSummary?.breakfastAmount)} /> : null
+              }
+
 
               <View style={styles.divider} />
 
@@ -692,12 +696,15 @@ const BookHotelScreen = ({ route, navigation }) => {
 
 export default BookHotelScreen;
 
-const PriceRow = ({ label, value }) => (
-  <View style={[commonStyles.rowBetweenAligned, commonStyles.mb_1]}>
-    <Text style={styles.priceLabel}>{label}</Text>
-    <Text style={styles.priceValue}>{value}</Text>
-  </View>
-);
+const PriceRow = ({ label, value }) => {
+  label == "Instant Discount"
+  return (
+    <View style={[commonStyles.rowBetweenAligned, commonStyles.mb_1]}>
+      <Text style={styles.priceLabel}>{label}</Text>
+      <Text style={[styles.priceValue, label == "Instant Discount" && { color: '#090' }]}>{value}</Text>
+    </View>
+  )
+};
 
 
 const styles = StyleSheet.create({

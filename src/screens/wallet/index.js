@@ -9,14 +9,21 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LinearGradient from "react-native-linear-gradient";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import Header from '@components/Header';
+import { fetchWalletData, fetchWalletTransactions } from '@store/slices/authSlice'
 
 
 const WalletScreen = ({ navigation }) => {
 
+  const dispatch = useDispatch();
   const { userDetail, walletMoney, walletInfo } = useSelector((state) => state.auth)
+
+  useEffect(() => {
+    dispatch(fetchWalletData(userDetail?.id))
+    dispatch(fetchWalletTransactions(userDetail?.id))
+  }, [])
 
   const renderItem = ({ item }) => (
     <View style={styles.txCard}>
@@ -75,7 +82,7 @@ const WalletScreen = ({ navigation }) => {
   return (
     <ScrollView style={styles.screenWrapper} showsVerticalScrollIndicator={false}>
       <Header showBack={'Wallet'} />
-      <View style={{paddingTop: 6}}>
+      <View style={{ paddingTop: 6 }}>
         {/* Glass Wallet Card */}
         {/* <LinearGradient
         colors={["#1F4037", "#99F2C8"]}
@@ -116,7 +123,7 @@ const WalletScreen = ({ navigation }) => {
             <Text style={styles.referSub}>Get ₹250 on every referral</Text>
           </View>
 
-          <TouchableOpacity style={styles.referBtn} onPress={()=> navigation.navigate('Referral')}>
+          <TouchableOpacity style={styles.referBtn} onPress={() => navigation.navigate('Referral')}>
             <Ionicons name="arrow-forward-outline" size={18} color="#fff" />
           </TouchableOpacity>
         </View>

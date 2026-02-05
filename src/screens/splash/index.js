@@ -29,7 +29,7 @@ export default function SplashScreen({ children }) {
 
         setTimeout(() => {
             checkToken()
-        }, 3000)
+        }, 1000)
     }, []);
 
     if (loading) {

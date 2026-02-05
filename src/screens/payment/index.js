@@ -213,7 +213,7 @@ const PaymentScreen = ({ route, navigation }) => {
                                 <View style={styles.paymentLogos}>
                                     <Image
                                         source={require('@assets/images/payment-methods.png')}
-                                        style={styles.logo}
+                                        style={styles.imgPaymentOptions}
                                     />
                                 </View>
                             )}
@@ -271,6 +271,10 @@ const styles = StyleSheet.create({
     },
     paymentLogos: {
         marginTop: 18
+    },
+    imgPaymentOptions: {
+        width: 310,
+        height: 36
     }
 });
 
