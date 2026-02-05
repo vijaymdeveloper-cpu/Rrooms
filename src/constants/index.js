@@ -70,8 +70,8 @@ export const PAYMENT_STATUS = {
 
 export const PAYMENT_STATUS_COLOR = {
   0: '#0518e8',
-  1: '#fcb00a',
-  3: '#02ba33'
+  1: '#02ba33',
+  3: '#fcb00a'
 }
 
 export const TRAVEL_OPTIONS = [

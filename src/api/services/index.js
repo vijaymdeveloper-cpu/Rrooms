@@ -27,9 +27,12 @@ const Services = {
     getCouponByUserIdService: (id) => {
         return api.get(dictionary.getCouponByUserId(id))
     },
-    applyCouponService: (id, code) => {
-        return api.get(dictionary.applyCoupon(id, code))
+    applyCouponService: (proId, userId, code) => {
+        return api.get(dictionary.applyCoupon(proId, userId, code))
     },
+    // applyCouponService: (id, code) => {
+    //     return api.get(dictionary.applyCoupon(id, code))
+    // },
 
     allCitiesService: () => {
         return api.get(dictionary.allCities())

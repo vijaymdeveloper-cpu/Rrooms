@@ -8,7 +8,8 @@ const Dictionary = {
     walletMoney: (id)=> `auth/user-wallet?user_id=${id}`,
     walletHistory: (id)=> `auth/user-wallet/${id}`,
     getCouponByUserId: (id) => `rrooms-property/coupon-userid/${id}?offerMode=2`,
-    applyCoupon: (id, code) => `rrooms-property/coupon/validate/${id}/${code}`,
+    applyCoupon: (proId, userId, code) => `rrooms-property/coupon/validates/${code}/${userId}/${proId}`,
+    // applyCoupon: (id, code) => `rrooms-property/coupon/validate/${id}/${code}`,
 
     allCities: ()=> `country/city`,
     allStates: ()=> `country/state`,

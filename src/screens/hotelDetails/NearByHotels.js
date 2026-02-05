@@ -4,8 +4,9 @@ import services from "@api/services";
 import Icon from "react-native-vector-icons/Ionicons";
 import moment from "moment";
 import HotelCardSkeleton from '@components/skeletons/HotelCardSkeleton'
+import { StackActions } from "@react-navigation/native"
 
-const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,onPolularHotelPress }) => {
+const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,navigation }) => {
 
     const [nearestProperty, setNearestProperty] = useState([]);
     const dummyImage = require('@assets/images/hotelPlaceholder.png');
@@ -24,6 +25,19 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,onPolularHotelPress })
         fetchNearestProperty(hotelId)
     }, [hotelId])
 
+    const handleHotelPress = (item) => {
+        navigation.dispatch(
+            StackActions.push("HotelDetails", {
+                hotel: {
+                    hotelId: item.id,
+                    hotelName: item?.name,
+                    img: baseImgUrl + item?.PropertyImages?.[0]?.image,
+                },
+                bookingType: "",
+            })
+        );
+    };
+
     return (
         <View style={commonStyles.mt_5}>
             <View style={[commonStyles.flexBetween, commonStyles.mb_3]}>
@@ -38,11 +52,11 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,onPolularHotelPress })
                     nearestProperty.map((item, index) => {
                         const img = item?.PropertyImages[0]?.image
                         const primaryImg = item?.PropertyImages?.find((data) => data.id == item?.profileImageID)?.image
-                        const city = item?.slug?.startsWith("/Lucknow")
                         const today = moment();
                         let xPrice = []
                         let mPrice = 0
                         item?.Rooms.forEach((items) => {
+                            if (items?.fromDate || items?.toDate) return
                             const fromDate = moment(items?.fromDate);
                             const toDate = moment(items?.toDate);
                             const isTodayInRange =
@@ -57,11 +71,7 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,onPolularHotelPress })
                             mPrice = Math.min(...xPrice);
                         });
                         return (
-                            <TouchableOpacity 
-                            onPress={() => onPolularHotelPress(item)} 
-
-                            key={index} 
-                            style={styles.card}>
+                            <TouchableOpacity key={index} style={styles.card} onPress={() => handleHotelPress(item)}>
                                 {item?.allowHourly === 1 && (
                                     <View style={{
                                         position: 'absolute',

@@ -48,10 +48,9 @@ const PAYMENT_TYPE_MAP = {
 const PaymentScreen = ({ route, navigation }) => {
 
     const [selected, setSelected] = useState(null);
-    const { BookingId, amount, bookingType, payAtHotel, partialPayment, bookingDetail } = route?.params
+    const { BookingId, amount, bookingType, payAtHotel, partialPayment, bookingDetail, redirectTo } = route?.params;
     const { userDetail } = useSelector((state) => state.auth)
 
-    console.log('bookingDetail', bookingDetail)
 
     const isHourly = bookingType === "Hourly";
     const isFullDay = bookingType === "FullDay";
@@ -71,42 +70,37 @@ const PaymentScreen = ({ route, navigation }) => {
     });
 
     const bookHandler = async (option) => {
-        setSelected(option)
+        try {
+            setSelected(option)
 
-        let paymentType = PAYMENT_TYPE_MAP[option] || '';
+            let paymentType = PAYMENT_TYPE_MAP[option] || '';
 
-        // 🔹 Online / Partial payment
-        if (option === PAYMENT_OPTIONS.PAY_NOW || option === PAYMENT_OPTIONS.PARTIAL_PAY) {
-            const resp = await services.paymentGatewayService(
-                BookingId,
-                paymentType
-            )
-            const { order_id, amount } = resp?.data?.data || {};
+            if (option === PAYMENT_OPTIONS.PAY_NOW || option === PAYMENT_OPTIONS.PARTIAL_PAY) {
+                const resp = await services.paymentGatewayService(
+                    BookingId,
+                    paymentType
+                )
+                const { order_id, amount } = resp?.data?.data || {};
 
-            openRazorpay(
-                order_id,
-                amount,
-                paymentType,
-                BookingId,
-                option,
-                resp?.data?.data?.key
-            )
-        }
-        else {
-            const res = await services.updateBookingModeStatusService(
-                BookingId,
-                {
-                    status: 1,
-                    paymentMode: 0,
-                    paymentAmount: false
+                openRazorpay(order_id, amount, paymentType, BookingId, option, resp?.data?.data?.key)
+            }
+            else {
+                const res = await services.updateBookingModeStatusService(
+                    BookingId,
+                    {
+                        status: 1,
+                        paymentMode: 0,
+                        paymentAmount: false
+                    }
+                )
+                if (res?.data?.status) {
+                    setTimeout(() => {
+                        navigation.navigate('BookingConfirmed', { bookingId: BookingId })
+                    }, 1000)
                 }
-            )
-            if (res?.data?.status) {
-                setTimeout(() => {
-                    navigation.navigate('BookingConfirmed', { bookingId: BookingId })
-                }, 1000)
             }
         }
+        catch (err) { console.log(err) }
     }
 
     const openRazorpay = async (orderId, amount, paymentType, bookingId, option, key) => {
@@ -160,15 +154,21 @@ const PaymentScreen = ({ route, navigation }) => {
                 newPayload.partialPayAmount = paidAmount
             }
 
-            const x = await services.updateBookingModeStatusService(bookingId, newPayload );
-
-            navigation.navigate('BookingConfirmed', { bookingId });
+            const x = await services.updateBookingModeStatusService(bookingId, newPayload);
+            if (redirectTo == 'Bookings') {
+                navigation?.navigate('Tabs', {screen: 'Bookings',});
+            }
+            else {
+                navigation.navigate('BookingConfirmed', { bookingId });
+            }
 
         } catch (error) {
             // 🔹 Payment Failed / Cancelled
             console.log('Razorpay Error:', error);
         }
     };
+
+    console.log('redirectTo', redirectTo)
 
 
     return (
@@ -213,7 +213,7 @@ const PaymentScreen = ({ route, navigation }) => {
                                 <View style={styles.paymentLogos}>
                                     <Image
                                         source={require('@assets/images/payment-methods.png')}
-                                        style={styles.logo}
+                                        style={styles.imgPaymentOptions}
                                     />
                                 </View>
                             )}
@@ -271,6 +271,10 @@ const styles = StyleSheet.create({
     },
     paymentLogos: {
         marginTop: 18
+    },
+    imgPaymentOptions: {
+        width: 310,
+        height: 36
     }
 });
 

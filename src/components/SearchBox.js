@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     },
     searchInput: {
         height: 58,
-        fontSize: 16,
+        fontSize: 14,
         color: '#8E949A',
         borderRadius: 12,
         paddingHorizontal: 10,

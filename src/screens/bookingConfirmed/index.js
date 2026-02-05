@@ -96,7 +96,8 @@ export default function BookingConfirmedScreen({ route, navigation }) {
   const handlePayment = () => {
     navigation.navigate('Payment', {
       BookingId: bookingId,
-      isPayAtHotelEnabled: false
+      isPayAtHotelEnabled: false,
+      redirectTo: 'Bookings'
     });
   }
 

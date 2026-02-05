@@ -74,7 +74,6 @@ export default function LoginScreen({ navigation }) {
       requestHint().then(number => {
         setValue("mobile", number.substring(number.length - 10, number.length))
         getHash().then(hash => {
-          console.log("Hash key: ", hash);
           handleSendOtp(hash)
         }).catch(console.log);
       })

@@ -12,7 +12,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { baseImgUrl } from '@api/client';
 
-const HotelGalleryModal = ({ visible, images = [], onClose }) => {
+const HotelGalleryModal = ({ visible, images = [], activeGalleryTab, onClose }) => {
 
     const [activeTab, setActiveTab] = useState('');
 
@@ -30,7 +30,12 @@ const HotelGalleryModal = ({ visible, images = [], onClose }) => {
 
     useEffect(() => {
         if (tabMenus.length) {
-            setActiveTab(tabMenus[0]);
+            if (activeGalleryTab == 'All') {
+                setActiveTab(tabMenus[0]);
+            }
+            else {
+                setActiveTab(tabMenus.find((item)=> item == activeGalleryTab));
+            }
         }
     }, [visible]);
 

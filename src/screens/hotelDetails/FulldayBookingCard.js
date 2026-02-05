@@ -34,6 +34,41 @@ const FulldayBookingCard = ({
     const [dateRange, setDateRange] = useState([today, tomorrow]);
     const [startDate, endDate] = dateRange;
 
+    const isDateRangeFulldayStatusBlocked = (statusData, startDate, endDate) => {
+
+        if (!statusData || typeof statusData !== "object") {
+            return false;
+        }
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (isNaN(start) || isNaN(end)) {
+            return false;
+        }
+
+        for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+
+            const key = d.toISOString().split("T")[0];
+
+            const daySlots = statusData?.[key];
+
+            if (!Array.isArray(daySlots)) continue;
+
+            const isFullDaySoldOut = daySlots.some(
+                s => s?.slot === "FullDay" && s?.status === "Sold-Out"
+            );
+
+            if (isFullDaySoldOut) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+
+
     const checkFullDayRoomAvaility = async (sDate = startDate, eDate = endDate) => {
         const payload = {
             propertyId: hotelDetails?.id,
@@ -124,7 +159,9 @@ const FulldayBookingCard = ({
         );
         const finalPrice = xPrice ? xPrice : item?.regularPrice;
 
-        const isFullDayBlocked = JSON.parse(item?.fullDayStatus)?.[startDate]?.find(data => data?.slot === "FullDay") || null;
+        const dateWisefullDayStatus = JSON.parse(item?.fullDayStatus)
+
+        const isFullDayBlocked = isDateRangeFulldayStatusBlocked(dateWisefullDayStatus, startDate, endDate)
         const checkStatus = item?.status ? safeParse(item?.status || [])?.find(data => data?.date == moment(startDate).format("YYYY-MM-DD")) : {};
 
         let notAvail = availRooms?.find((data) => data?.propertyRoomsCategoryId == item?.categoryId)?.availableRooms
@@ -132,7 +169,7 @@ const FulldayBookingCard = ({
         const isDisabled =
             notAvail === 0 ||
             hotelDetails?.status !== 1 ||
-            isFullDayBlocked?.status === "Sold-Out" ||
+            isFullDayBlocked ||
             checkStatus?.soldOut === true;
 
         return (
@@ -159,25 +196,26 @@ const FulldayBookingCard = ({
                         {finalPrice && (
                             <Text style={styles.oldPrice}>₹{`${Math.round(reverseApplyTax(finalPrice))}`}</Text>
                         )}
-                        <View style={styles.saveBadge}>
-                            <Text style={styles.saveText}>
-                                20% OFF
-                            </Text>
-                        </View>
+
                     </View>
-                    <View style={{ marginTop: 3 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
                         <TouchableOpacity
                             style={[styles.bookBtn, isDisabled && styles.bookBtnDisabled]}
                             disabled={
                                 notAvail == 0 ||
                                 (hotelDetails?.status != 1) ||
-                                (isFullDayBlocked?.status == "Sold-Out") ||
+                                isFullDayBlocked ||
                                 checkStatus?.soldOut == true
                             }
                             onPress={() => handleDailyBooking(item, 24, finalPrice)}
                         >
                             <Text style={styles.bookText}>Book</Text>
                         </TouchableOpacity>
+                        <View style={styles.saveBadge}>
+                            <Text style={styles.saveText}>
+                                20% OFF
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </View>

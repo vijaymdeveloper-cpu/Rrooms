@@ -68,7 +68,6 @@ export default function useHotelsController() {
             ? `&traveller_choice=${filters.travellerChoice.toString()}`
             : "";
 
-            console.log('locality', locality)
 
         /* ------------------ FINAL URL ------------------ */
         const finalParams =

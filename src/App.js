@@ -39,7 +39,6 @@ export default function App() {
 
   const checkAppUpdate = () => {
     VersionCheck.needUpdate().then((res) => {
-      console.log("checkAppUpdate", res)
       if (res.isNeeded) {
         ToastAndroid.show(
           "New update available, Please update !",
@@ -52,7 +51,6 @@ export default function App() {
 
 
   const _handleAppStateChange = (nextState) => {
-    console.log("AppState", nextState);
     if (nextState === "active") {
       checkAppUpdate();
     }
@@ -63,9 +61,7 @@ export default function App() {
 
     appsFlyer.onDeepLink((res) => {
       // alert(JSON.stringify(res))
-      console.log('onDeepLink', res);
       const deeplinkData = JSON.parse(res.data)
-      console.log("deeplinkData", deeplinkData)
       // if (deeplinkData.data.deep_link_value) {
       //   setReferralCode(deeplinkData.data.deep_link_value);
       //   deepLinkPubSub.publish(deeplinkData);

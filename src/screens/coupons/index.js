@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { commonStyles } from '@assets/styles/commonStyles';
 import Header from '@components/Header';
 import CouponCard from './CouponCard';
+import { fetchCoupons } from '@store/slices/authSlice'
 
 const CouponScreen = ({ route, navigation }) => {
 
+    const dispatch = useDispatch();
     const propertyId = route?.params?.propertyId
-    const { coupons = [] } = useSelector((state) => state.auth);
+    const { userDetail, coupons = [] } = useSelector((state) => state.auth);
+
+    useEffect(()=>{
+        dispatch(fetchCoupons(userDetail?.id))
+    }, [])
 
     return (
         <View style={commonStyles.screenWrapper}>
@@ -22,6 +28,7 @@ const CouponScreen = ({ route, navigation }) => {
                             key={item?.code}
                             item={item}
                             propertyId={propertyId}
+                            userDetail={userDetail}
                             navigation={navigation}
                         />
                     ))}
