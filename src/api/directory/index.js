@@ -37,6 +37,9 @@ const Dictionary = {
     foodList: (id)=> `rrooms-property/food-menu-item?property_id=${id}`,
     foodOrder: ()=> `rrooms-property/food-order`,
     getMenuByPropertyId: (id)=> `rrooms-property/menu-card/${id}`,
+
+    checkRating: (code)=> `rrooms-property/ratings?bookingCode=${code}`,
+    sendRating: ()=> `rrooms-property/ratings`
     
 }
 

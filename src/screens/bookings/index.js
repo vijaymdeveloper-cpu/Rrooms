@@ -23,6 +23,8 @@ import { daysDiffernceWithMinOne } from '@utils';
 import CancelModal from './CancelModal';
 import FoodOrderModal from './FoodOrderModal';
 import MenuModal from './MenuModal';
+import RatingModal from './RatingModal'
+import { showToast } from '@utils/Toaster'
 
 
 const BookingScreen = ({ navigation }) => {
@@ -125,6 +127,24 @@ const BookingScreen = ({ navigation }) => {
       redirectTo: 'Bookings'
     });
   }
+
+  const [ratingData, setRatingData] = useState({})
+  const [showRatingPopup, setShowRatingPopup] = useState(false)
+
+  const fetchRatingData = async (item) => {
+    const res = await services.checkRatingService(item?.bookingCode)
+    if (res?.data?.status) {
+      if (res?.data?.data?.find((i) => i.userId == userDetail?.id)) {
+        showToast('error', 'You have already rated this Booking*')
+      }
+      else {
+        setRatingData(item);
+        setShowRatingPopup(true)
+      }
+    }
+  }
+
+
 
   return (
     <View style={commonStyles.screenWrapper}>
@@ -337,6 +357,15 @@ const BookingScreen = ({ navigation }) => {
                           <Text style={[commonStyles.btnOutlineDarkText, styles.btnText]}>Need Help?</Text>
                         </TouchableOpacity>
                       </View>
+
+                      {
+                        item?.bookingStatus == 3 &&
+                        <View style={commonStyles.mt_2}>
+                          <TouchableOpacity style={[commonStyles.btnOutline, commonStyles.btnOutlineDark, styles.button]} onPress={() => fetchRatingData(item)}>
+                            <Text>Rate Us</Text>
+                          </TouchableOpacity>
+                        </View>
+                      }
                     </View>
                   )
                 })
@@ -367,6 +396,14 @@ const BookingScreen = ({ navigation }) => {
         bookingData={singleItem || {}}
         fetchBookedHotels={fetchBookedHotels}
       />
+
+      <RatingModal
+        show={showRatingPopup}
+        setShowRatingPopup={setShowRatingPopup}
+        data={ratingData}
+        userDetail={userDetail}
+      />
+
     </View>
   );
 };

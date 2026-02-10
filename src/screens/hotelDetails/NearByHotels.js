@@ -38,6 +38,8 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles, navigation }) => {
         );
     };
 
+    console.log('nearestProperty', nearestProperty)
+
     return (
         <View style={commonStyles.mt_5}>
             <View style={[commonStyles.flexBetween, commonStyles.mb_3]}>
@@ -115,10 +117,10 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles, navigation }) => {
                                             ₹{mPrice}/night
                                         </Text>
 
-                                        <Text style={commonStyles.text_6}>
+                                        {/* <Text style={commonStyles.text_6}>
                                             <Icon name="star" size={14} color="#FFD700" />{" "}
                                             {item?.rating || 4.8}
-                                        </Text>
+                                        </Text> */}
                                     </View>
                                 </View>
                             </TouchableOpacity>

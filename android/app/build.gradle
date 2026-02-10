@@ -84,7 +84,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 89
         // versionName "4.3.9"
-        versionName "4.4.0"
+        versionName "4.5.0"
     }
     signingConfigs {
         debug {

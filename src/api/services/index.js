@@ -106,6 +106,13 @@ const Services = {
         return api.get(dictionary.getMenuByPropertyId(id))
     },
 
+    checkRatingService: (id, body) => {
+        return api.get(dictionary.checkRating(id, body))
+    },
+    sendRatingService: (data) => {
+        return api.post(dictionary.sendRating(), data)
+    },
+
 }
 
 export default Services

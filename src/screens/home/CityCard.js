@@ -139,6 +139,7 @@ const CityCard = ({ size, setCoords }) => {
         <FlatList
             data={filterCities}
             horizontal
+            showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => {
                 const img = `${mainUrl}${item.city_img}`;
                 return (
