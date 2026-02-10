@@ -82,9 +82,8 @@ android {
         applicationId "com.rrooms"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 89
-        // versionName "4.3.9"
-        versionName "4.5.0"
+        versionCode 98
+        versionName "4.4.1" // 88 (4.3.8)
     }
     signingConfigs {
         debug {
@@ -94,7 +93,7 @@ android {
             keyPassword 'android'
         }
     }
-    buildTypes {
+    buildTypes { 
         debug {
             signingConfig signingConfigs.debug
         }

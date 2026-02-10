@@ -6,7 +6,7 @@ import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import services from "@api/services";
 import Header from '@components/Header';
-import { mainUrl } from '@api/client'
+import { finalBaseUrl } from '@api/client'
 
 const paymentOptions = [
     {
@@ -127,7 +127,7 @@ const PaymentScreen = ({ route, navigation }) => {
             const response = await RazorpayCheckout.open(options);
 
             const res = await axios.post(
-                `${mainUrl}/api/rrooms-property/razorpay-status-update` +
+                `${finalBaseUrl}/api/rrooms-property/razorpay-status-update` +
                 `?booking_id=${bookingId}` +
                 `&paymentType=${paymentType}` +
                 `&paidAmount=${paidAmount}` +

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import services from "@api/services";
-import { mainUrl } from '@api/client'
+import { finalBaseUrl } from '@api/client'
 
 const { width } = Dimensions.get("window");
 
@@ -74,7 +74,7 @@ const MenuModal = ({ show, setShow, propertyId }) => {
                                             <View style={styles.imageWrap}>
                                                 <Image
                                                     source={{
-                                                        uri: `${mainUrl}images/${item?.menuCard}`,
+                                                        uri: `${finalBaseUrl}images/${item?.menuCard}`,
                                                     }}
                                                     style={styles.image}
                                                     resizeMode="contain"

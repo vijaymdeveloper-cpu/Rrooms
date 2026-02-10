@@ -6,7 +6,7 @@ import moment from "moment";
 import HotelCardSkeleton from '@components/skeletons/HotelCardSkeleton'
 import { StackActions } from "@react-navigation/native"
 
-const NearByHotels = ({ hotelId, baseImgUrl, commonStyles, navigation }) => {
+const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,navigation }) => {
 
     const [nearestProperty, setNearestProperty] = useState([]);
     const dummyImage = require('@assets/images/hotelPlaceholder.png');
@@ -54,7 +54,6 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles, navigation }) => {
                     nearestProperty.map((item, index) => {
                         const img = item?.PropertyImages[0]?.image
                         const primaryImg = item?.PropertyImages?.find((data) => data.id == item?.profileImageID)?.image
-                        const city = item?.slug?.startsWith("/Lucknow")
                         const today = moment();
                         let xPrice = []
                         let mPrice = 0
