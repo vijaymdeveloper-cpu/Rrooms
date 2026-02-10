@@ -82,7 +82,7 @@ android {
         applicationId "com.rrooms"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 97
+        versionCode 98
         versionName "4.4.1" // 88 (4.3.8)
     }
     signingConfigs {
