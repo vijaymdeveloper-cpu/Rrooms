@@ -6,7 +6,7 @@ import moment from "moment";
 import HotelCardSkeleton from '@components/skeletons/HotelCardSkeleton'
 import { StackActions } from "@react-navigation/native"
 
-const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,navigation }) => {
+const NearByHotels = ({ hotelId, baseImgUrl, commonStyles, navigation }) => {
 
     const [nearestProperty, setNearestProperty] = useState([]);
     const dummyImage = require('@assets/images/hotelPlaceholder.png');
@@ -38,8 +38,6 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,navigation }) => {
         );
     };
 
-    console.log('nearestProperty', nearestProperty)
-
     return (
         <View style={commonStyles.mt_5}>
             <View style={[commonStyles.flexBetween, commonStyles.mb_3]}>
@@ -58,7 +56,6 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,navigation }) => {
                         let xPrice = []
                         let mPrice = 0
                         item?.Rooms.forEach((items) => {
-                            if (items?.fromDate || items?.toDate) return
                             const fromDate = moment(items?.fromDate);
                             const toDate = moment(items?.toDate);
                             const isTodayInRange =
@@ -71,6 +68,7 @@ const NearByHotels = ({ hotelId, baseImgUrl, commonStyles,navigation }) => {
                                     : null;
                             xPrice.push(isTodayInRange ? offerPrice[moment(items?.fromDate).format('YYYY-MM-DD')]?.find((room) => room.slot === "FullDay").price : items?.regularPrice);
                             mPrice = Math.min(...xPrice);
+
                         });
                         return (
                             <TouchableOpacity key={index} style={styles.card} onPress={() => handleHotelPress(item)}>

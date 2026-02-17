@@ -322,7 +322,9 @@ const BookHotelScreen = ({ route, navigation }) => {
           return;
         }
       }
+      console.log('payload', payload)
       const res = await services.bookHotelService(payload);
+      console.log('res', res)
       if (res.status === 200) {
         setBookingDetail(res?.data?.data);
         navigation.navigate('Payment', {

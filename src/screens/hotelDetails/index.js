@@ -121,6 +121,9 @@ export default function HotelDetailsScreen({ route, navigation }) {
             }, {}) || {}
     );
 
+    console.log('hotelDetails', hotelDetails)
+    console.log('loading', loading)
+
     return (
         <ScrollView
             showsVerticalScrollIndicator={false}

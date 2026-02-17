@@ -168,7 +168,6 @@ const PaymentScreen = ({ route, navigation }) => {
         }
     };
 
-    console.log('redirectTo', redirectTo)
 
 
     return (
